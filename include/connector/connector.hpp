@@ -91,6 +91,7 @@ public:
         memcpy(frame.data, data.data(), data.size());
 
         // 发送 CAN 帧
+        // 发送超时处理
         if (send(sockfd, &frame, sizeof(struct can_frame), 0) < 0) {
             // std::cerr << "Error sending CAN frame: " << strerror(errno) << std::endl;
             // close(sockfd);
@@ -104,6 +105,7 @@ public:
         int nbytes = recv(sockfd, &rcv_frame, sizeof(struct can_frame), 0);
         if (nbytes < 0) {
             // std::cerr << "Error receiving CAN frame: " << strerror(errno) << std::endl;
+            // TODO 其他情况测试
             if (errno == EAGAIN) {
                 throw TimeoutException("conector " + can_interface_name_ + " timeout");
             }
