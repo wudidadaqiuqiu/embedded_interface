@@ -11,7 +11,7 @@ using connector::ConnectorSendNode;
 using connector::IdPack;
 using connector::MotorPack;
 using connector::CanFrame;
-
+// rostopic pub /test_can_frame1 connector/IdPack "id: 1"
 void connentor_once_test(Connector<ConnectorType::CAN>& connector);
 int main(int argc, char **argv) {
     ros::init(argc, argv, "test_can");

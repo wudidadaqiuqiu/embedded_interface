@@ -10,26 +10,29 @@ using connector::ConnectorSendNode;
 using connector::IdPack;
 using connector::MotorPack;
 using connector::CanFrame;
+using connector::LatencyTest;
 
-struct MyPack {
-    using MSGT = IdPack;
-
-    static void unpack(const IdPack::ConstPtr& msg, std::vector<uint8_t>& data, uint32_t& id) {
-        
-    }
-};
+// rostopic pub /test_can_lantency connector/IdPack "id: 1"
 int main(int argc, char **argv) {
     ros::init(argc, argv, "test_can_loopback_lantency");
-    
-    Connector<ConnectorType::CAN> connector("can1");
     ros::NodeHandle nh;
-    auto pub = nh.advertise<CanFrame::MSGT>("test_can_frame", 10);
-    auto l = [&pub](const CanFrame::MSGT& msg) {
-        pub.publish(msg);
-    };
+    
+    LatencyTest latency_test(nh, "can1", "test_can_lantency", "test_can_lantency_recv", 1, 2);
+    Connector<ConnectorType::CAN> connector("can2");
     ConnectorSingleRecvNode<ConnectorType::CAN, CanFrame> crn(connector);
     ConnectorSendNode<ConnectorType::CAN, CanFrame> crn1(connector);
-    auto sub = nh.subscribe<CanFrame::MSGT>("test_can_lantency", 10, &decltype(crn1)::callback, &crn1);
+
+    auto pub = nh.advertise<CanFrame::MSGT>("test_can_lantency_cli", 10);
+    auto l = [&pub](const CanFrame::MSGT& msg) {
+        if (msg.id == 1) {
+            std::cout << "recv: " << msg.id << std::endl;
+            CanFrame::MSGT out;
+            out.id = 2;
+            pub.publish(out);
+        }
+    };
+    crn.register_callback(l);
+    auto sub = nh.subscribe("test_can_lantency_cli", 10, &decltype(crn1)::callback, &crn1);
     ros::spin();
     return 0;
 }
