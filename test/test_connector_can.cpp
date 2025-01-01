@@ -5,7 +5,7 @@
 
 using connector::Connector;
 using connector::ConnectorType;
-using connector::ConnectorRecvNode;
+using connector::ConnectorSingleRecvNode;
 using connector::ConnectorSendNode;
 using connector::IdPack;
 using connector::MotorPack;
@@ -33,7 +33,7 @@ int main(int argc, char **argv) {
         } else 
             pub.publish(msg);
     };
-    ConnectorRecvNode<ConnectorType::CAN, CanFrame> crn(connector, l);
+    ConnectorSingleRecvNode<ConnectorType::CAN, CanFrame> crn(connector, l);
     ConnectorSendNode<ConnectorType::CAN, CanFrame> crn1(nh, connector, "test_can_frame1");
     
     ros::spin();

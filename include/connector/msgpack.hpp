@@ -1,4 +1,5 @@
 #pragma once
+#include <cstring>
 #include "connector/IdPack.h"
 #include "connector/MotorFdb.h"
 #include "connector/data_convert.hpp"
@@ -19,8 +20,7 @@ struct CanFrame {
 
     static void unpack(const IdPack::ConstPtr& msg, std::vector<uint8_t>& data, uint32_t& id) {
         data.resize(msg->data.size());
-        // 测试的
-        id = msg->id + 1;
+        id = msg->id;
         memcpy(data.data(), msg->data.data(), msg->data.size());
     }
 

@@ -140,12 +140,11 @@ include_directories(
 ## The recommended prefix ensures that target names across packages don't collide
 add_executable(can_test test/can_test.cpp)
 add_executable(test_connector_can test/test_connector_can.cpp)
+add_executable(test_connector_latency test/test_loopback_lantency.cpp)
 
-# target_link_libraries(test_connector_can ${catkin_LIBRARIES})
-# target_include_directories(test_connector_can PRIVATE ${PKG_DIR}/include)
 
 add_dependencies(test_connector_can connector_gencpp)
-
+add_dependencies(test_connector_latency connector_gencpp)
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
 ## target back to the shorter version for ease of user use
@@ -158,6 +157,9 @@ add_dependencies(test_connector_can connector_gencpp)
 
 ## Specify libraries to link a library or executable target against
 target_link_libraries(test_connector_can
+  ${catkin_LIBRARIES}
+)
+target_link_libraries(test_connector_latency
   ${catkin_LIBRARIES}
 )
 
