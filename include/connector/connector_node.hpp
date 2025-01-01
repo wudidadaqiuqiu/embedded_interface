@@ -13,17 +13,7 @@
 namespace connector {
 template <ConnectorType CON_TYPE, typename MSGPackT>
 class ConnectorSingleRecvNode
-{
-private:
-    // ros::Publisher pub;
-    Connector<CON_TYPE>& connector;
-    PackManager<MSGPackT> pack_manager;
-    std::thread thread;
-    std::vector<uint8_t> buffer;
-    uint32_t id;
-    typename MSGPackT::MSGT msg;
-    std::atomic<bool> is_end;
-    
+{    
 public:
     ConnectorSingleRecvNode(Connector<CON_TYPE>& con) :
         connector(con), 
@@ -45,7 +35,15 @@ public:
     void register_callback(std::function<void(const typename MSGPackT::MSGT&)> func) {
         pack_manager.register_callback(func);
     }
-    
+private:
+    Connector<CON_TYPE>& connector;
+    PackManager<MSGPackT> pack_manager;
+    std::thread thread;
+    std::vector<uint8_t> buffer;
+    uint32_t id;
+    typename MSGPackT::MSGT msg;
+    std::atomic<bool> is_end;
+
     void run() {
         while (!is_end) {
             try {
@@ -77,11 +75,8 @@ public:
 
 template <ConnectorType CON_TYPE, typename MSGPackT>
 class ConnectorSendNode {
-    Connector<CON_TYPE>& connector;
-    CallbacksContainer<typename MSGPackT::MSGT::ConstPtr> callbacks_;
-    std::vector<uint8_t> buffer;
-    uint32_t id_;
-
+    using THIS = ConnectorSendNode<CON_TYPE, MSGPackT>;
+    using CallbackType = void(THIS::*)(const typename MSGPackT::MSGT::ConstPtr&);  // 成员函数指针类型
     public:
     ConnectorSendNode(Connector<CON_TYPE>& con) : 
         connector(con) {}
@@ -89,6 +84,15 @@ class ConnectorSendNode {
     void register_callback(std::function<void(const typename MSGPackT::MSGT::ConstPtr&)> callback) {
         callbacks_.register_callback(callback);
     }
+    // void(T::*fp)(const boost::shared_ptr<M const>&)
+    static CallbackType get_callback() {
+        return &THIS::callback;
+    }
+    private:
+    Connector<CON_TYPE>& connector;
+    CallbacksContainer<typename MSGPackT::MSGT::ConstPtr> callbacks_;
+    std::vector<uint8_t> buffer;
+    uint32_t id_;
 
     void callback(const typename MSGPackT::MSGT::ConstPtr& msg) {
         MSGPackT::unpack(msg, buffer, id_);

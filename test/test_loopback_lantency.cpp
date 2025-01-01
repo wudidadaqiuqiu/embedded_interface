@@ -32,7 +32,7 @@ int main(int argc, char **argv) {
         }
     };
     crn.register_callback(l);
-    auto sub = nh.subscribe("test_can_lantency_cli", 10, &decltype(crn1)::callback, &crn1);
+    auto sub = nh.subscribe("test_can_lantency_cli", 10, decltype(crn1)::get_callback(), &crn1);
     ros::spin();
     return 0;
 }

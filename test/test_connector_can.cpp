@@ -37,7 +37,7 @@ int main(int argc, char **argv) {
     ConnectorSingleRecvNode<ConnectorType::CAN, CanFrame> crn(connector);
     crn.register_callback(l);
     ConnectorSendNode<ConnectorType::CAN, CanFrame> crn1(connector);
-    auto sub = nh.subscribe("test_can_frame1", 10, &decltype(crn1)::callback, &crn1);
+    auto sub = nh.subscribe("test_can_frame1", 10, decltype(crn1)::get_callback(), &crn1);
     ros::spin();
     return 0;
 }

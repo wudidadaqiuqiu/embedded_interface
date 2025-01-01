@@ -28,7 +28,7 @@ class LatencyTest {
                 start = std::chrono::high_resolution_clock::now();
         };
         snode.register_callback(l1);
-        sub = nh.subscribe(send_topic_name, 10, &decltype(snode)::callback, &snode);
+        sub = nh.subscribe(send_topic_name, 10, decltype(snode)::get_callback(), &snode);
 
         // pub = nh.advertise<CanFrame::MSGT>(recv_topic_name, 10);
         auto l2 = [this, recv_id](const CanFrame::MSGT& msg) {
