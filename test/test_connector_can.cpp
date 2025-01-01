@@ -1,3 +1,4 @@
+#include "ros/ros.h"
 #include "connector/connector.hpp"
 #include "connector/connector_node.hpp"
 #include "connector/msgpack.hpp"
@@ -35,8 +36,8 @@ int main(int argc, char **argv) {
     };
     ConnectorSingleRecvNode<ConnectorType::CAN, CanFrame> crn(connector);
     crn.register_callback(l);
-    ConnectorSendNode<ConnectorType::CAN, CanFrame> crn1(nh, connector, "test_can_frame1");
-    
+    ConnectorSendNode<ConnectorType::CAN, CanFrame> crn1(connector);
+    auto sub = nh.subscribe("test_can_frame1", 10, &decltype(crn1)::callback, &crn1);
     ros::spin();
     return 0;
 }

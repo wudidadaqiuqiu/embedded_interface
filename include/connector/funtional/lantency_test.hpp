@@ -1,3 +1,4 @@
+#include "ros/ros.h"
 #include "connector/connector_node.hpp"
 #include "connector/msgpack.hpp"
 #include <chrono>
@@ -18,7 +19,7 @@ class LatencyTest {
         const std::string& device_name,
         const std::string& send_topic_name, const std::string& recv_topic_name,
         uint32_t id)
-        : connector(device_name), snode(nh, connector, send_topic_name) {
+        : connector(device_name), snode(connector) {
         // pub = nh.advertise<CanFrame::MSGT>(send_topic_name, 10);
         
         auto l = [this, id](const CanFrame::MSGT::ConstPtr& msg) {

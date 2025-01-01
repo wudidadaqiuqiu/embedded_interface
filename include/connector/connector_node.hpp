@@ -1,5 +1,4 @@
 #pragma once
-#include <ros/ros.h>
 #include <thread>
 
 #include "connector/connector.hpp"
@@ -78,35 +77,22 @@ public:
 
 template <ConnectorType CON_TYPE, typename MSGPackT>
 class ConnectorSendNode {
-    ros::NodeHandle& nh_;
-    ros::Subscriber sub;
     Connector<CON_TYPE>& connector;
-    std::function<void(const typename MSGPackT::MSGT::ConstPtr&)> callback_;
+    CallbacksContainer<typename MSGPackT::MSGT::ConstPtr> callbacks_;
     std::vector<uint8_t> buffer;
-    
     uint32_t id_;
 
     public:
-    ConnectorSendNode(ros::NodeHandle& nh, Connector<CON_TYPE>& con, 
-                        std::string topic_name = "", 
-                        std::function<void(const typename MSGPackT::MSGT::ConstPtr&)> callback = nullptr) : 
-        nh_(nh), connector(con), callback_(callback) {
-        if (topic_name != "") {
-            subscribe(topic_name);
-        }
-    }
-    void subscribe(std::string topic_name) {
-        sub = nh_.subscribe(topic_name, 10, &ConnectorSendNode::callback, this);
-    }
+    ConnectorSendNode(Connector<CON_TYPE>& con) : 
+        connector(con) {}
+        
     void register_callback(std::function<void(const typename MSGPackT::MSGT::ConstPtr&)> callback) {
-        callback_ = callback;
+        callbacks_.register_callback(callback);
     }
 
     void callback(const typename MSGPackT::MSGT::ConstPtr& msg) {
         MSGPackT::unpack(msg, buffer, id_);
-        if (callback_) {
-            callback_(msg);
-        }
+        callbacks_.callback(msg);
         try {
             connector.con_send(buffer, id_);
         } catch (const std::exception& e) {
