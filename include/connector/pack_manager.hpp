@@ -3,6 +3,7 @@
 #include <mutex>
 #include <thread>
 #include <condition_variable>
+#include "callbacks_container.hpp"
 
 namespace connector {
     
@@ -13,11 +14,11 @@ class PackManager {
     std::thread thread;
     mutable std::mutex mutex;
     std::condition_variable cv;
-    const std::function<void(const MSGT&)> func_;
+    CallbacksContainer<MSGT> callbacks_;
     bool is_ended = false;
     
 public:
-    PackManager(std::function<void(const MSGT&)> func) : func_(func) {
+    PackManager() {
         thread = std::thread(&PackManager::process_task, this);
     }
     ~PackManager() {
@@ -27,6 +28,11 @@ public:
             thread.join();
         }
     }
+
+    void register_callback(std::function<void(const MSGT&)> func) {
+        callbacks_.register_callback(func);
+    }
+
     void push_pack(const MSGT& pack) {
         // std::cout << "queue push" << std::endl;
         {
@@ -48,7 +54,7 @@ public:
                 pack = packs.front();
                 packs.pop();
             }
-            func_(pack);
+            callbacks_.callback(pack);
         }
     }
 };

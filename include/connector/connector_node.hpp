@@ -1,13 +1,11 @@
 #pragma once
 #include <ros/ros.h>
 #include <thread>
-#include <std_msgs/UInt8MultiArray.h>
 
 #include "connector/connector.hpp"
 #include "connector/pack_manager.hpp"
 
 #include <atomic>
-#include <chrono>
 
 #define PRINT_FILE_AND_LINE() \
     std::cout << "File: " << __FILE__ << ", Line: " << __LINE__ << std::endl;
@@ -15,7 +13,7 @@
 
 namespace connector {
 template <ConnectorType CON_TYPE, typename MSGPackT>
-class ConnectorRecvNode
+class ConnectorSingleRecvNode
 {
 private:
     // ros::Publisher pub;
@@ -28,22 +26,27 @@ private:
     std::atomic<bool> is_end;
     
 public:
-    ConnectorRecvNode(Connector<CON_TYPE>& con, std::function<void(const typename MSGPackT::MSGT&)> func) :
+    ConnectorSingleRecvNode(Connector<CON_TYPE>& con) :
         connector(con), 
-        pack_manager(func) {
+        pack_manager() {
         is_end = false;
         // pub = nh.advertise<typename MSGPackT::MSGT>(topic_name, 10);
-        thread = std::thread(&ConnectorRecvNode<CON_TYPE, MSGPackT>::run, this);
+        thread = std::thread(&ConnectorSingleRecvNode<CON_TYPE, MSGPackT>::run, this);
     }
-    ConnectorRecvNode(const ConnectorRecvNode&) = delete;
-    ~ConnectorRecvNode() {
+    ConnectorSingleRecvNode(const ConnectorSingleRecvNode&) = delete;
+
+    ~ConnectorSingleRecvNode() {
         // 在这里设置成非阻塞没用
         is_end = true;
         if (thread.joinable()) {
             thread.join();
         }
     }
-
+    
+    void register_callback(std::function<void(const typename MSGPackT::MSGT&)> func) {
+        pack_manager.register_callback(func);
+    }
+    
     void run() {
         while (!is_end) {
             try {
@@ -75,21 +78,35 @@ public:
 
 template <ConnectorType CON_TYPE, typename MSGPackT>
 class ConnectorSendNode {
+    ros::NodeHandle& nh_;
     ros::Subscriber sub;
     Connector<CON_TYPE>& connector;
+    std::function<void(const typename MSGPackT::MSGT::ConstPtr&)> callback_;
     std::vector<uint8_t> buffer;
+    
     uint32_t id_;
 
     public:
-    ConnectorSendNode(ros::NodeHandle& nh, Connector<CON_TYPE>& con, std::string topic_name, uint32_t id = 0) : 
-        connector(con),
-        id_(id) {
-        sub = nh.subscribe(topic_name, 10, &ConnectorSendNode::callback, this);
+    ConnectorSendNode(ros::NodeHandle& nh, Connector<CON_TYPE>& con, 
+                        std::string topic_name = "", 
+                        std::function<void(const typename MSGPackT::MSGT::ConstPtr&)> callback = nullptr) : 
+        nh_(nh), connector(con), callback_(callback) {
+        if (topic_name != "") {
+            subscribe(topic_name);
+        }
+    }
+    void subscribe(std::string topic_name) {
+        sub = nh_.subscribe(topic_name, 10, &ConnectorSendNode::callback, this);
+    }
+    void register_callback(std::function<void(const typename MSGPackT::MSGT::ConstPtr&)> callback) {
+        callback_ = callback;
     }
 
     void callback(const typename MSGPackT::MSGT::ConstPtr& msg) {
         MSGPackT::unpack(msg, buffer, id_);
-
+        if (callback_) {
+            callback_(msg);
+        }
         try {
             connector.con_send(buffer, id_);
         } catch (const std::exception& e) {

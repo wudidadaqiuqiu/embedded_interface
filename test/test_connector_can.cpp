@@ -33,7 +33,8 @@ int main(int argc, char **argv) {
         } else 
             pub.publish(msg);
     };
-    ConnectorSingleRecvNode<ConnectorType::CAN, CanFrame> crn(connector, l);
+    ConnectorSingleRecvNode<ConnectorType::CAN, CanFrame> crn(connector);
+    crn.register_callback(l);
     ConnectorSendNode<ConnectorType::CAN, CanFrame> crn1(nh, connector, "test_can_frame1");
     
     ros::spin();
