@@ -16,6 +16,7 @@ private:
     std::thread thread;
     std::vector<uint8_t> buffer;
     uint32_t id;
+    typename MSGPackT::MSGT msg;
     std::atomic<bool> is_end;
     
 public:
@@ -47,7 +48,8 @@ public:
                 continue;
             }
             // std::cout << "recv: " << id << std::endl;
-            pub.publish(MSGPackT::pack(buffer, id));
+            MSGPackT::pack(msg, buffer, id);
+            pub.publish(msg);
         }
     }
 

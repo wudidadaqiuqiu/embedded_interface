@@ -1,5 +1,6 @@
 #include "connector/connector.hpp"
 #include "connector/connector_node.hpp"
+#include "connector/msgpack.hpp"
 #include "connector/IdPack.h"
 
 using connector::Connector;
@@ -7,15 +8,13 @@ using connector::ConnectorType;
 using connector::ConnectorRecvNode;
 using connector::ConnectorSendNode;
 using connector::IdPack;
-
+using connector::MotorPack;
 struct CanFrame {
     using MSGT = IdPack;
     
-    static IdPack pack(const std::vector<uint8_t>& data, uint32_t id) {
-        auto msg = IdPack();
+    static void pack(IdPack& msg, const std::vector<uint8_t>& data, uint32_t id) {
         msg.id = id;
         msg.data = data;
-        return msg;
     }
 
     static void unpack(const IdPack::ConstPtr& msg, std::vector<uint8_t>& data, uint32_t& id) {
@@ -31,7 +30,7 @@ void connentor_once_test(Connector<ConnectorType::CAN>& connector);
 int main(int argc, char **argv) {
     ros::init(argc, argv, "test_can");
     
-    Connector<ConnectorType::CAN> connector("can0");
+    Connector<ConnectorType::CAN> connector("can1");
     try {
         // connentor_once_test(connector);    
     } catch (const std::exception& e) {
@@ -39,7 +38,7 @@ int main(int argc, char **argv) {
     }
     
     ros::NodeHandle nh;
-    ConnectorRecvNode<ConnectorType::CAN, CanFrame> crn(nh, connector, "test_can_frame");
+    ConnectorRecvNode<ConnectorType::CAN, MotorPack> crn(nh, connector, "test_can_frame");
     ConnectorSendNode<ConnectorType::CAN, CanFrame> crn1(nh, connector, "test_can_frame1");
     
     ros::spin();

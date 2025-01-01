@@ -53,6 +53,9 @@ set(PKG_DIR ${CMAKE_CURRENT_SOURCE_DIR})
 add_message_files(
   FILES
   IdPack.msg
+  MotorFdb.msg
+  NumReal.msg
+  AngleRelate.msg
 )
 
 ## Generate services in the 'srv' folder
