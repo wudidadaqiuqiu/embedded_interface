@@ -1,12 +1,13 @@
 #pragma once
-#include <queue>
-#include <mutex>
-#include <thread>
 #include <condition_variable>
+#include <mutex>
+#include <queue>
+#include <thread>
+
 #include "callbacks_container.hpp"
 
 namespace connector {
-    
+
 template <typename MSGPackT>
 class PackManager {
     using MSGT = typename MSGPackT::MSGT;
@@ -16,8 +17,8 @@ class PackManager {
     std::condition_variable cv;
     CallbacksContainer<MSGT> callbacks_;
     bool is_ended = false;
-    
-public:
+
+   public:
     PackManager() {
         thread = std::thread(&PackManager::process_task, this);
     }
@@ -48,7 +49,7 @@ public:
             // std::cout << "in process" << std::endl;
             {
                 std::unique_lock<std::mutex> lock(mutex);
-                cv.wait(lock, [this]() { return this->is_ended || !this->packs.empty();});
+                cv.wait(lock, [this]() { return this->is_ended || !this->packs.empty(); });
                 if (is_ended) return;
                 // std::cout << "queue pop" << std::endl;
                 pack = packs.front();
@@ -58,4 +59,4 @@ public:
         }
     }
 };
-}
+}  // namespace connector

@@ -1,10 +1,10 @@
-#include "ros/ros.h"
-#include "connector/connector_node.hpp"
-#include "connector/msgpack.hpp"
 #include <chrono>
 
-namespace connector {
+#include "connector/connector_node.hpp"
+#include "connector/msgpack.hpp"
+#include "ros/ros.h"
 
+namespace connector {
 
 class LatencyTest {
     std::string device_name_;
@@ -16,14 +16,14 @@ class LatencyTest {
 
     std::chrono::time_point<std::chrono::high_resolution_clock> start;
 
-    public:
-    LatencyTest(ros::NodeHandle& nh, 
-        const std::string& device_name,
-        const std::string& send_topic_name, const std::string& recv_topic_name,
-        uint32_t id, uint32_t recv_id)
+   public:
+    LatencyTest(ros::NodeHandle& nh,
+                const std::string& device_name,
+                const std::string& send_topic_name, const std::string& recv_topic_name,
+                uint32_t id, uint32_t recv_id)
         : device_name_(device_name), connector(device_name), rnode(connector), snode(connector) {
         auto l1 = [this, id](const CanFrame::MSGT::ConstPtr& msg) {
-            std::cout << device_name_ << " sub" << msg->id <<  std::endl;
+            std::cout << device_name_ << " sub" << msg->id << std::endl;
             if (msg->id == id)
                 start = std::chrono::high_resolution_clock::now();
         };
@@ -40,8 +40,6 @@ class LatencyTest {
         };
         rnode.register_callback(l2);
     }
-
 };
 
-
-}
+}  // namespace connector

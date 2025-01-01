@@ -1,23 +1,19 @@
 #pragma once
+#include <atomic>
 #include <thread>
 
 #include "connector/connector.hpp"
 #include "connector/pack_manager.hpp"
 
-#include <atomic>
-
 #define PRINT_FILE_AND_LINE() \
     std::cout << "File: " << __FILE__ << ", Line: " << __LINE__ << std::endl;
 
-
 namespace connector {
 template <ConnectorType CON_TYPE, typename MSGPackT>
-class ConnectorSingleRecvNode
-{    
-public:
-    ConnectorSingleRecvNode(Connector<CON_TYPE>& con) :
-        connector(con), 
-        pack_manager() {
+class ConnectorSingleRecvNode {
+   public:
+    ConnectorSingleRecvNode(Connector<CON_TYPE>& con) : connector(con),
+                                                        pack_manager() {
         is_end = false;
         // pub = nh.advertise<typename MSGPackT::MSGT>(topic_name, 10);
         thread = std::thread(&ConnectorSingleRecvNode<CON_TYPE, MSGPackT>::run, this);
@@ -31,11 +27,12 @@ public:
             thread.join();
         }
     }
-    
+
     void register_callback(std::function<void(const typename MSGPackT::MSGT&)> func) {
         pack_manager.register_callback(func);
     }
-private:
+
+   private:
     Connector<CON_TYPE>& connector;
     PackManager<MSGPackT> pack_manager;
     std::thread thread;
@@ -51,8 +48,7 @@ private:
             } catch (const TimeoutException& e) {
                 // std::cout << e.what() << std::endl;
                 continue;
-            }
-            catch (const std::exception& e) {
+            } catch (const std::exception& e) {
                 std::cout << "error: " << e.what() << std::endl;
                 PRINT_FILE_AND_LINE();
                 throw e;
@@ -70,17 +66,15 @@ private:
     }
 
     // void reconnect
-
 };
 
 template <ConnectorType CON_TYPE, typename MSGPackT>
 class ConnectorSendNode {
     using THIS = ConnectorSendNode<CON_TYPE, MSGPackT>;
-    using CallbackType = void(THIS::*)(const typename MSGPackT::MSGT::ConstPtr&);  // 成员函数指针类型
-    public:
-    ConnectorSendNode(Connector<CON_TYPE>& con) : 
-        connector(con) {}
-        
+    using CallbackType = void (THIS::*)(const typename MSGPackT::MSGT::ConstPtr&);  // 成员函数指针类型
+   public:
+    ConnectorSendNode(Connector<CON_TYPE>& con) : connector(con) {}
+
     void register_callback(std::function<void(const typename MSGPackT::MSGT::ConstPtr&)> callback) {
         callbacks_.register_callback(callback);
     }
@@ -88,7 +82,8 @@ class ConnectorSendNode {
     static CallbackType get_callback() {
         return &THIS::callback;
     }
-    private:
+
+   private:
     Connector<CON_TYPE>& connector;
     CallbacksContainer<typename MSGPackT::MSGT::ConstPtr> callbacks_;
     std::vector<uint8_t> buffer;
@@ -104,7 +99,6 @@ class ConnectorSendNode {
             return;
         }
     }
-
 };
 
-}
+}  // namespace connector

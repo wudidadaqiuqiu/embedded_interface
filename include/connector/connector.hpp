@@ -1,18 +1,17 @@
 #pragma once
-#include <cstring>
-#include <cerrno>
-#include <unistd.h>
-#include <sys/socket.h>
+#include <fcntl.h>
 #include <linux/can.h>
 #include <net/if.h>
 #include <sys/ioctl.h>
-#include <fcntl.h>
+#include <sys/socket.h>
+#include <unistd.h>
+
+#include <cerrno>
+#include <cstring>
+#include <iostream>
 #include <vector>
 
-#include <iostream>
-
 namespace connector {
-    
 
 enum ConnectorType {
     CAN = 0,
@@ -21,14 +20,13 @@ enum ConnectorType {
 
 template <ConnectorType CON_TYPE>
 class Connector {
-    
 };
 
 class TimeoutException : public std::exception {
-private:
+   private:
     std::string message;  // 异常信息
 
-public:
+   public:
     // 构造函数，接受错误消息
     TimeoutException(const std::string& msg) : message(msg) {}
 
@@ -38,13 +36,13 @@ public:
     }
 };
 
-
 template <>
 class Connector<ConnectorType::CAN> {
-    private:
-        int sockfd;
-        std::string can_interface_name_;
-public:
+   private:
+    int sockfd;
+    std::string can_interface_name_;
+
+   public:
     Connector(std::string can_interface_name) : can_interface_name_(can_interface_name) {
         sockfd = socket(PF_CAN, SOCK_RAW, CAN_RAW);
         if (sockfd < 0) {
@@ -66,7 +64,7 @@ public:
         addr.can_family = AF_CAN;
         addr.can_ifindex = ifr.ifr_ifindex;
 
-        if (bind(sockfd, (struct sockaddr *)&addr, sizeof(struct sockaddr_can)) < 0) {
+        if (bind(sockfd, (struct sockaddr*)&addr, sizeof(struct sockaddr_can)) < 0) {
             close(sockfd);
             throw std::runtime_error("Error binding socket " + std::string(strerror(errno)));
         }
@@ -86,7 +84,7 @@ public:
     void con_send(const std::vector<uint8_t>& data, uint32_t id) {
         // 准备一个 CAN 帧发送
         struct can_frame frame;
-        frame.can_id = id;  // CAN ID
+        frame.can_id = id;            // CAN ID
         frame.can_dlc = data.size();  // 数据长度
         memcpy(frame.data, data.data(), data.size());
 
@@ -128,7 +126,7 @@ public:
         //     // perror("fcntl(F_GETFL) failed");
         //     return -1;
         // }
-        
+
         // flags |= O_NONBLOCK;  // 设置 O_NONBLOCK 标志
         if (fcntl(sockfd_, F_SETFL, O_NONBLOCK) == -1) {
             // perror("fcntl(F_SETFL) failed");
@@ -144,7 +142,6 @@ public:
         tv.tv_usec = (timeout_ms % 1000) * 1000;
         setsockopt(sockfd_, SOL_SOCKET, SO_RCVTIMEO, (const char*)&tv, sizeof(tv));
     }
-
 };
 
-}
+}  // namespace connector
