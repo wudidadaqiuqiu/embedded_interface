@@ -38,7 +38,11 @@ int main(int argc, char **argv) {
     }
     
     ros::NodeHandle nh;
-    ConnectorRecvNode<ConnectorType::CAN, MotorPack> crn(nh, connector, "test_can_frame");
+    auto pub = nh.advertise<MotorPack::MSGT>("test_can_frame", 10);
+    auto l = [&pub](const MotorPack::MSGT& msg) {
+        pub.publish(msg);
+    };
+    ConnectorRecvNode<ConnectorType::CAN, MotorPack> crn(connector, "test_can_frame", l);
     ConnectorSendNode<ConnectorType::CAN, CanFrame> crn1(nh, connector, "test_can_frame1");
     
     ros::spin();

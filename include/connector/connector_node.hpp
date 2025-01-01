@@ -4,15 +4,23 @@
 #include <std_msgs/UInt8MultiArray.h>
 
 #include "connector/connector.hpp"
+#include "connector/pack_manager.hpp"
+
 #include <atomic>
+#include <chrono>
+
+#define PRINT_FILE_AND_LINE() \
+    std::cout << "File: " << __FILE__ << ", Line: " << __LINE__ << std::endl;
+
 
 namespace connector {
 template <ConnectorType CON_TYPE, typename MSGPackT>
 class ConnectorRecvNode
 {
 private:
-    ros::Publisher pub;
+    // ros::Publisher pub;
     Connector<CON_TYPE>& connector;
+    PackManager<MSGPackT> pack_manager;
     std::thread thread;
     std::vector<uint8_t> buffer;
     uint32_t id;
@@ -20,10 +28,12 @@ private:
     std::atomic<bool> is_end;
     
 public:
-    ConnectorRecvNode(ros::NodeHandle& nh, Connector<CON_TYPE>& con, std::string topic_name) :
-        connector(con) {
+    ConnectorRecvNode(Connector<CON_TYPE>& con, std::string topic_name, 
+                    std::function<void(const typename MSGPackT::MSGT&)> func) :
+        connector(con), 
+        pack_manager(func) {
         is_end = false;
-        pub = nh.advertise<typename MSGPackT::MSGT>(topic_name, 10);
+        // pub = nh.advertise<typename MSGPackT::MSGT>(topic_name, 10);
         thread = std::thread(&ConnectorRecvNode<CON_TYPE, MSGPackT>::run, this);
     }
     ConnectorRecvNode(const ConnectorRecvNode&) = delete;
@@ -45,11 +55,18 @@ public:
             }
             catch (const std::exception& e) {
                 std::cout << "error: " << e.what() << std::endl;
-                continue;
+                PRINT_FILE_AND_LINE();
+                throw e;
             }
             // std::cout << "recv: " << id << std::endl;
+            auto start = std::chrono::high_resolution_clock::now();
+            // std::cout << (short)(((short)buffer[2] << 8) | buffer[3]) << std::endl;
             MSGPackT::pack(msg, buffer, id);
-            pub.publish(msg);
+            pack_manager.push_pack(msg);
+            // pub.publish(msg);
+            auto end = std::chrono::high_resolution_clock::now();
+            std::chrono::duration<double> duration = end - start;
+            std::cout << "Time taken: " << duration.count() << " seconds" << std::endl;
         }
     }
 
