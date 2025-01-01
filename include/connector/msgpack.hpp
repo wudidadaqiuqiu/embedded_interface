@@ -1,15 +1,31 @@
 #pragma once
-#include <ros/ros.h>
-#include <std_msgs/UInt8MultiArray.h>
-#include "connector/connector.hpp"
 #include "connector/IdPack.h"
 #include "connector/MotorFdb.h"
+#include "connector/data_convert.hpp"
 
 namespace connector {
 #define pi (3.1415926f)
 #define RAD2DEG (180.0f / pi)
 #define DEG2RAD (pi / 180.0f)
 using real = float;
+
+struct CanFrame {
+    using MSGT = IdPack;
+    
+    static void pack(IdPack& msg, const std::vector<uint8_t>& data, uint32_t id) {
+        msg.id = id;
+        msg.data = data;
+    }
+
+    static void unpack(const IdPack::ConstPtr& msg, std::vector<uint8_t>& data, uint32_t& id) {
+        data.resize(msg->data.size());
+        // 测试的
+        id = msg->id + 1;
+        memcpy(data.data(), msg->data.data(), msg->data.size());
+    }
+
+};
+
 inline void motor_6020_pack(MotorFdb& msg, const std::vector<uint8_t>& data, uint32_t id) {
     msg.id = id;
     msg.pos.deg.num = (real)(short)(((short)data[0]) << 8 | data[1]) * 360.0 / 8192.0;
@@ -27,5 +43,8 @@ struct MotorPack {
     static void pack(MotorFdb& msg, const std::vector<uint8_t>& data, uint32_t id) { motor_6020_pack(msg, data, id); };
 };
 
-
+template <>
+inline void data_convert(const CanFrame::MSGT& msg, MotorFdb& data) {
+    motor_6020_pack(data, msg.data, msg.id);
+}
 }

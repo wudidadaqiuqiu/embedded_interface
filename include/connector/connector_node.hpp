@@ -28,8 +28,7 @@ private:
     std::atomic<bool> is_end;
     
 public:
-    ConnectorRecvNode(Connector<CON_TYPE>& con, std::string topic_name, 
-                    std::function<void(const typename MSGPackT::MSGT&)> func) :
+    ConnectorRecvNode(Connector<CON_TYPE>& con, std::function<void(const typename MSGPackT::MSGT&)> func) :
         connector(con), 
         pack_manager(func) {
         is_end = false;
@@ -59,14 +58,14 @@ public:
                 throw e;
             }
             // std::cout << "recv: " << id << std::endl;
-            auto start = std::chrono::high_resolution_clock::now();
+            // auto start = std::chrono::high_resolution_clock::now();
             // std::cout << (short)(((short)buffer[2] << 8) | buffer[3]) << std::endl;
             MSGPackT::pack(msg, buffer, id);
             pack_manager.push_pack(msg);
             // pub.publish(msg);
-            auto end = std::chrono::high_resolution_clock::now();
-            std::chrono::duration<double> duration = end - start;
-            std::cout << "Time taken: " << duration.count() << " seconds" << std::endl;
+            // auto end = std::chrono::high_resolution_clock::now();
+            // std::chrono::duration<double> duration = end - start;
+            // std::cout << "Time taken: " << duration.count() << " seconds" << std::endl;
         }
     }
 

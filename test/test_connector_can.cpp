@@ -9,22 +9,7 @@ using connector::ConnectorRecvNode;
 using connector::ConnectorSendNode;
 using connector::IdPack;
 using connector::MotorPack;
-struct CanFrame {
-    using MSGT = IdPack;
-    
-    static void pack(IdPack& msg, const std::vector<uint8_t>& data, uint32_t id) {
-        msg.id = id;
-        msg.data = data;
-    }
-
-    static void unpack(const IdPack::ConstPtr& msg, std::vector<uint8_t>& data, uint32_t& id) {
-        data.resize(msg->data.size());
-        // 测试的
-        id = msg->id + 1;
-        memcpy(data.data(), msg->data.data(), msg->data.size());
-    }
-
-};
+using connector::CanFrame;
 
 void connentor_once_test(Connector<ConnectorType::CAN>& connector);
 int main(int argc, char **argv) {
@@ -38,11 +23,17 @@ int main(int argc, char **argv) {
     }
     
     ros::NodeHandle nh;
-    auto pub = nh.advertise<MotorPack::MSGT>("test_can_frame", 10);
-    auto l = [&pub](const MotorPack::MSGT& msg) {
-        pub.publish(msg);
+    auto pub = nh.advertise<CanFrame::MSGT>("test_can_frame", 10);
+    auto pub2 = nh.advertise<MotorPack::MSGT>("motor6020_fdb", 10);
+    auto l = [&pub, &pub2](const CanFrame::MSGT& msg) {
+        if (msg.id > 0x204 && msg.id <= 0x204 + 0x4) {
+            MotorPack::MSGT msg2;
+            data_convert(msg, msg2);
+            pub2.publish(msg2);
+        } else 
+            pub.publish(msg);
     };
-    ConnectorRecvNode<ConnectorType::CAN, MotorPack> crn(connector, "test_can_frame", l);
+    ConnectorRecvNode<ConnectorType::CAN, CanFrame> crn(connector, l);
     ConnectorSendNode<ConnectorType::CAN, CanFrame> crn1(nh, connector, "test_can_frame1");
     
     ros::spin();
