@@ -1,14 +1,17 @@
 #include "ros/ros.h"
 #include "connector/connector_node.hpp"
 #include "connector/msgpack.hpp"
-#include "motor.hpp"
+#include "motor/motor.hpp"
+#include "motor/motor_dji6020.hpp"
+
 using connector::Connector;
 using connector::ConnectorType;
 using connector::ConnectorSingleRecvNode;
 using connector::ConnectorSendNode;
 
-using motor::MotorPack;
 using connector::CanFrame;
+using motor::MotorDji6020Pack;
+
 // rostopic pub /test_can_frame1 connector/IdPack "id: 1"
 void connentor_once_test(Connector<ConnectorType::CAN>& connector);
 int main(int argc, char **argv) {
@@ -23,10 +26,10 @@ int main(int argc, char **argv) {
     
     ros::NodeHandle nh;
     auto pub = nh.advertise<CanFrame::MSGT>("test_can_frame", 10);
-    auto pub2 = nh.advertise<MotorPack::MSGT>("motor6020_fdb", 10);
+    auto pub2 = nh.advertise<MotorDji6020Pack::MSGT>("motor6020_fdb", 10);
     auto l = [&pub, &pub2](const CanFrame::MSGT& msg) {
         if (msg.id > 0x204 && msg.id <= 0x204 + 0x4) {
-            MotorPack::MSGT msg2;
+            MotorDji6020Pack::MSGT msg2;
             data_convert(msg, msg2);
             pub2.publish(msg2);
         } else 

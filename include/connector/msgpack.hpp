@@ -1,7 +1,6 @@
 #pragma once
 #include <cstring>
 
-#include "robot_msg/MotorFdb.h"
 #include "robot_msg/IdPack.h"
 
 namespace connector {
@@ -9,7 +8,6 @@ namespace connector {
 #define RAD2DEG (180.0f / pi)
 #define DEG2RAD (pi / 180.0f)
 
-using robot_msg::MotorFdb;
 using robot_msg::IdPack;
 
 struct CanFrame {
