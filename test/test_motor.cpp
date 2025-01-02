@@ -6,7 +6,9 @@ using connector::ConnectorType;
 using connector::ConnectorSingleRecvNode;
 using connector::ConnectorSendNode;
 using connector::IdPack;
-using connector::MotorPack;
+using motor::MotorPack;
+using motor::Motor;
+using motor::MotorType;
 using connector::CanFrame;
 
 // rostopic pub /test_can_lantency connector/IdPack "id: 1"

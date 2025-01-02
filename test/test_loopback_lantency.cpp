@@ -8,7 +8,6 @@ using connector::ConnectorType;
 using connector::ConnectorSingleRecvNode;
 using connector::ConnectorSendNode;
 using connector::IdPack;
-using connector::MotorPack;
 using connector::CanFrame;
 using connector::LatencyTest;
 

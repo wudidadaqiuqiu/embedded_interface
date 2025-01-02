@@ -1,14 +1,13 @@
 #include "ros/ros.h"
-#include "connector/connector.hpp"
 #include "connector/connector_node.hpp"
 #include "connector/msgpack.hpp"
-
+#include "motor.hpp"
 using connector::Connector;
 using connector::ConnectorType;
 using connector::ConnectorSingleRecvNode;
 using connector::ConnectorSendNode;
-using connector::data_convert;
-using connector::MotorPack;
+
+using motor::MotorPack;
 using connector::CanFrame;
 // rostopic pub /test_can_frame1 connector/IdPack "id: 1"
 void connentor_once_test(Connector<ConnectorType::CAN>& connector);
