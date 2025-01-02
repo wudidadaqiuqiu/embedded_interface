@@ -18,7 +18,7 @@ int main(int argc, char **argv) {
     ros::NodeHandle nh;
     
     LatencyTest latency_test(nh, "can1", "test_can_lantency", "test_can_lantency_recv", 1, 2);
-    Connector<ConnectorType::CAN> connector("can2");
+    Connector<ConnectorType::CAN> connector("can0");
     ConnectorSingleRecvNode<ConnectorType::CAN, CanFrame> crn(connector);
     ConnectorSendNode<ConnectorType::CAN, CanFrame> crn1(connector);
 

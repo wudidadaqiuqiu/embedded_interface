@@ -1,2 +1,0 @@
-NumReal deg
-NumReal rad

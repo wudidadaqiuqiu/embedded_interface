@@ -12,6 +12,7 @@ namespace connector {
 template <ConnectorType CON_TYPE, typename MSGPackT>
 class ConnectorSingleRecvNode {
    public:
+    using SharedPtr = std::shared_ptr<ConnectorSingleRecvNode<CON_TYPE, MSGPackT>>;
     ConnectorSingleRecvNode(Connector<CON_TYPE>& con) : connector(con),
                                                         pack_manager() {
         is_end = false;

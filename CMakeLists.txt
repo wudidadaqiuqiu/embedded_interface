@@ -11,7 +11,8 @@ find_package(catkin REQUIRED COMPONENTS
   roscpp
   rospy
   std_msgs
-  message_generation
+  robot_msg
+  # message_generation
 )
 set(PKG_DIR ${CMAKE_CURRENT_SOURCE_DIR})
 # message(STATUS "PKG_DIR: ${PKG_DIR}")
@@ -50,13 +51,9 @@ set(PKG_DIR ${CMAKE_CURRENT_SOURCE_DIR})
 ##   * add every package in MSG_DEP_SET to generate_messages(DEPENDENCIES ...)
 
 ## Generate messages in the 'msg' folder
-add_message_files(
-  FILES
-  IdPack.msg
-  MotorFdb.msg
-  NumReal.msg
-  AngleRelate.msg
-)
+# add_message_files(
+#   FILES
+# )
 
 ## Generate services in the 'srv' folder
 # add_service_files(
@@ -73,10 +70,10 @@ add_message_files(
 # )
 
 ## Generate added messages and services with any dependencies listed here
-generate_messages(
-  DEPENDENCIES
-  std_msgs
-)
+# generate_messages(
+#   DEPENDENCIES
+#   std_msgs
+# )
 
 ################################################
 ## Declare ROS dynamic reconfigure parameters ##
@@ -110,7 +107,7 @@ generate_messages(
 catkin_package(
  INCLUDE_DIRS include
 #  LIBRARIES connector
- CATKIN_DEPENDS roscpp std_msgs message_runtime
+ CATKIN_DEPENDS roscpp std_msgs robot_msg
 #  DEPENDS system_lib
 )
 
@@ -141,10 +138,11 @@ include_directories(
 add_executable(can_test test/can_test.cpp)
 add_executable(test_connector_can test/test_connector_can.cpp)
 add_executable(test_connector_latency test/test_loopback_lantency.cpp)
+add_executable(test_motor test/test_motor.cpp)
 
-
-add_dependencies(test_connector_can connector_gencpp)
-add_dependencies(test_connector_latency connector_gencpp)
+add_dependencies(test_connector_can robot_msg_gencpp)
+add_dependencies(test_connector_latency robot_msg_gencpp)
+add_dependencies(test_motor robot_msg_gencpp)
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
 ## target back to the shorter version for ease of user use
@@ -160,6 +158,10 @@ target_link_libraries(test_connector_can
   ${catkin_LIBRARIES}
 )
 target_link_libraries(test_connector_latency
+  ${catkin_LIBRARIES}
+)
+
+target_link_libraries(test_motor
   ${catkin_LIBRARIES}
 )
 

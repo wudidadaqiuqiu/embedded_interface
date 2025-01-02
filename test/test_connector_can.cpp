@@ -2,13 +2,12 @@
 #include "connector/connector.hpp"
 #include "connector/connector_node.hpp"
 #include "connector/msgpack.hpp"
-#include "connector/IdPack.h"
 
 using connector::Connector;
 using connector::ConnectorType;
 using connector::ConnectorSingleRecvNode;
 using connector::ConnectorSendNode;
-using connector::IdPack;
+using connector::data_convert;
 using connector::MotorPack;
 using connector::CanFrame;
 // rostopic pub /test_can_frame1 connector/IdPack "id: 1"

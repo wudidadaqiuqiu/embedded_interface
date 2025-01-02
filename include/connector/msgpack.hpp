@@ -1,8 +1,8 @@
 #pragma once
 #include <cstring>
 
-#include "connector/IdPack.h"
-#include "connector/MotorFdb.h"
+#include "robot_msg/MotorFdb.h"
+#include "robot_msg/IdPack.h"
 #include "connector/data_convert.hpp"
 
 namespace connector {
@@ -10,6 +10,8 @@ namespace connector {
 #define RAD2DEG (180.0f / pi)
 #define DEG2RAD (pi / 180.0f)
 using real = float;
+using robot_msg::MotorFdb;
+using robot_msg::IdPack;
 
 struct CanFrame {
     using MSGT = IdPack;
