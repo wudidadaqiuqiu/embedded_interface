@@ -4,9 +4,6 @@
 #include "robot_msg/IdPack.h"
 
 namespace connector {
-#define pi (3.1415926f)
-#define RAD2DEG (180.0f / pi)
-#define DEG2RAD (pi / 180.0f)
 
 using robot_msg::IdPack;
 

@@ -4,9 +4,11 @@
 #include <queue>
 #include <thread>
 
-#include "callbacks_container.hpp"
+#include "common/callbacks_container.hpp"
 
 namespace connector {
+
+using connector_common::CallbacksContainer;
 
 template <typename MSGPackT>
 class PackManager {

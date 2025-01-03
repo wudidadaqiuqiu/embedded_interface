@@ -3,6 +3,8 @@
 #include <mutex>
 #include <vector>
 
+namespace connector_common {
+
 template <typename T>
 class CallbacksContainer {
     mutable std::mutex func_list_mutex;                     // 用于保护 func_list_
@@ -25,3 +27,5 @@ class CallbacksContainer {
         }
     }
 };
+
+}

@@ -19,6 +19,11 @@ int main(int argc, char **argv) {
     Connector<ConnectorType::CAN> connector("can0");
     ConnectorSingleRecvNode<ConnectorType::CAN, CanFrame> crn(connector);
     Motor<MotorType::DJI_6020> motor(&crn, 1);
+    auto pub = nh.advertise<MotorFdb>("/motor6020_fdb", 10);
+    auto l = [&pub, &motor](const CanFrame::MSGT& msg) {
+        pub.publish(motor.get_fdb());
+    };
+    motor.register_callback(l);
     ros::spin();
     return 0;
 }
