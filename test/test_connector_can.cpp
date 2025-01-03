@@ -30,7 +30,9 @@ int main(int argc, char **argv) {
     auto l = [&pub, &pub2](const CanFrame::MSGT& msg) {
         if (msg.id > 0x204 && msg.id <= 0x204 + 0x4) {
             MotorDji6020Pack::MSGT msg2;
-            data_convert(msg, msg2);
+            MotorDji6020Pack temp(msg2);
+            data_convert(CanFrame(const_cast<CanFrame::MSGT&>(msg)),
+                        temp);
             pub2.publish(msg2);
         } else 
             pub.publish(msg);

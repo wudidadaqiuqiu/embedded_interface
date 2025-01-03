@@ -42,6 +42,8 @@ inline void motor_6020_pack(MotorFdb& msg, const std::vector<uint8_t>& data, uin
 
 struct MotorDji6020Pack {
     using MSGT = MotorFdb;
+    MSGT& msg;
+    MotorDji6020Pack(MSGT& msg) : msg(msg) {}
     static void pack(MotorFdb& msg, const std::vector<uint8_t>& data, uint32_t id) { motor_6020_pack(msg, data, id); };
 };
 
@@ -49,6 +51,6 @@ struct MotorDji6020Pack {
 }
 
 template <>
-inline void data_convert(const CanFrame::MSGT& msg, MotorFdb& data) {
-    motor::motor_6020_pack(data, msg.data, msg.id);
+inline void data_convert(const CanFrame& src, motor::MotorDji6020Pack& dst) {
+    motor::motor_6020_pack(dst.msg, src.msg.data, src.msg.id);
 }

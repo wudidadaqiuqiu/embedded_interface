@@ -12,7 +12,8 @@ using robot_msg::IdPack;
 
 struct CanFrame {
     using MSGT = IdPack;
-
+    MSGT& msg;
+    CanFrame(MSGT& msg) : msg(msg) {}
     static void pack(IdPack& msg, const std::vector<uint8_t>& data, uint32_t id) {
         msg.id = id;
         msg.data = data;
