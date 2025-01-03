@@ -24,6 +24,12 @@ int main(int argc, char **argv) {
         pub.publish(motor.get_fdb());
     };
     motor.register_callback(l);
+    ros::Timer timer = nh.createTimer(ros::Duration(1.0), 
+        [&motor](const ros::TimerEvent&) {
+            // std::cout << "timer callback" << std::endl;
+            std::cout << "motor fps: " << motor.get_framerate() << std::endl;
+        }
+    );
     ros::spin();
     return 0;
 }

@@ -2,6 +2,8 @@
 #include <functional>
 #include "connector/msgpack.hpp"
 #include "motor/motor.hpp"
+#include "common/framerate.hpp"
+
 namespace motor {
 
 template <>
@@ -11,7 +13,8 @@ class Motor<MotorType::DJI_6020> {
     MotorFdb data;
     real last_pos_deg;
     int round = 0;
-    
+    // 帧率计算
+    connector_common::Framerate framerate_;
     public:
     static constexpr MotorId BASE_ID = 0x204;
     Motor(ConnectorSingleRecvNode<ConnectorType::CAN, CanFrame>* rnode_,
@@ -22,6 +25,7 @@ class Motor<MotorType::DJI_6020> {
     }
     
     const MotorFdb& get_fdb() const { return data;}
+    auto get_framerate() const { return framerate_.fps; }
 };
 
 
@@ -68,6 +72,8 @@ Motor<MotorType::DJI_6020>::Motor(ConnectorSingleRecvNode<ConnectorType::CAN, Ca
         else if (data.pos.deg.num - last_pos_deg < -180.0)
             round++;
         data_convert<Deg, AngleRelate>(data.pos.deg.num + round * 360.0f, data.pos_zero_cross);
+        // 帧率计算
+        framerate_.update();
     };
     rnode_->register_callback(l2);
 }
