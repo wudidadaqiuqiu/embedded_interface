@@ -3,7 +3,6 @@
 #include "connector/msgpack.hpp"
 #include "common/data_convert.hpp"
 #include "motor/motor.hpp"
-#include "motor/motor_dji6020.hpp"
 
 using connector::Connector;
 using connector::ConnectorType;

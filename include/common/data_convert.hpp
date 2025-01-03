@@ -22,4 +22,17 @@ inline void data_convert<Deg, robot_msg::AngleRelate>
     t.rad.num = deg * UsefulNum::DEG2RAD;
 }
 
+template <typename T>
+T get_mid(T x, T a, T b) {
+    T l = std::min(a, b);
+    T u = std::max(a, b);
+    if (x < l) {
+        return l;
+    }
+    if (x > u) {
+        return u;
+    }
+    return x;
+}
+
 }

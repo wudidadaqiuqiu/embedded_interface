@@ -83,6 +83,15 @@ class ConnectorSendNode {
     static CallbackType get_callback() {
         return &THIS::callback;
     }
+    void send(const typename MSGPackT::MSGT& msg) {
+        MSGPackT::unpack(msg, buffer, id_);
+        try {
+            connector.con_send(buffer, id_);
+        } catch (const std::exception& e) {
+            std::cout << "error: " << e.what() << std::endl;
+            return;
+        }
+    }
 
    private:
     Connector<CON_TYPE>& connector;

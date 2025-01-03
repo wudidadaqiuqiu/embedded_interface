@@ -26,6 +26,20 @@ class Motor<MotorType::DJI_6020> {
     
     const MotorFdb& get_fdb() const { return data;}
     auto get_framerate() const { return framerate_.fps; }
+
+    MotorId set_send_buf(real& current, std::vector<uint8_t>& buf) {
+        if (buf.size() != 8) {
+            return MotorId(0);
+        }
+        MotorId id = (id_ <= 4) ? 0x1FE : 0x2FE;
+        uint8_t low_index = ((id_ - 1) % 4) * 2;
+        uint8_t high_index = ((id_ - 1) % 4) * 2 + 1;
+        short out = (short)(current * 16384.0 / 3.0);
+
+        buf[low_index] = (uint8_t)(out >> 8);
+        buf[high_index] = (uint8_t)(out & 0xFF);
+        return id;
+    }
 };
 
 

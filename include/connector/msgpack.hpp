@@ -21,6 +21,12 @@ struct CanFrame {
         id = msg->id;
         memcpy(data.data(), msg->data.data(), msg->data.size());
     }
+    
+    static void unpack(const IdPack& msg, std::vector<uint8_t>& data, uint32_t& id) {
+        data.resize(msg.data.size());
+        id = msg.id;
+        memcpy(data.data(), msg.data.data(), msg.data.size());
+    }
 };
 
 }  // namespace connector
