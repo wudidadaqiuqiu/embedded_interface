@@ -11,7 +11,10 @@ using connector::IdPack;
 using connector::CanFrame;
 using motor::Motor;
 using motor::MotorType;
-using controller::PidController;
+using controller::Controller;
+using controller::ControllerType;
+using controller::ControllerConfig;
+using controller::ControllerBaseConfigNone;
 
 // rostopic pub /test_can_lantency connector/IdPack "id: 1"
 int main(int argc, char **argv) {
@@ -22,8 +25,9 @@ int main(int argc, char **argv) {
     ConnectorSingleRecvNode<ConnectorType::CAN, CanFrame> crn(connector);
     ConnectorSendNode<ConnectorType::CAN, CanFrame> cs(connector);
     constexpr motor::MotorId motor_id = 1;
-    Motor<MotorType::DJI_6020> motor(&crn, motor_id);
-    PidController pid_controller(10.0 * 3.0 / 16384.0, 0, 0, 0, 3, 0);
+    Motor<MotorType::DJI_6020> motor({&crn, motor_id});
+    Controller<ControllerConfig<ControllerType::PID, ControllerBaseConfigNone>> 
+    pid_controller(10.0 * 3.0 / 16384.0, 0, 0, 0, 3, 0);
     auto pub = nh.advertise<MotorFdb>("/motor6020_fdb", 10);
     auto l = [&pub, &motor, &cs, &pid_controller](const CanFrame::MSGT& msg) {
         pub.publish(motor.get_fdb());

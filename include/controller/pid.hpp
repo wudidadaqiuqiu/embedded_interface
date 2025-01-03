@@ -4,9 +4,11 @@
 
 namespace controller {
 
-
-class PidController : public ControllerBase<real, real, real>{
+template <>
+class Controller<ControllerConfig<ControllerType::PID, ControllerBaseConfigNone>> :
+	public ControllerBase<ControllerBaseConfigAllReal> {
 public:
+	// using THIS = Controller<ControllerType::PID, ControllerBaseConfigAllReal>;
 	real kp_, ki_, kd_;
 	real outmax_;
 	real error_max_;
@@ -14,7 +16,8 @@ public:
 	real error[3] = {0, 0, 0};
 	real derror = 0;
 	real error_sum = 0;
-	PidController(real kp, real ki, real kd, real error_max, real outmax, real Irange) : 
+	Controller<ControllerConfig<ControllerType::PID, ControllerBaseConfigNone>>
+		(real kp, real ki, real kd, real error_max, real outmax, real Irange) : 
 		kp_(kp), ki_(ki), kd_(kd), outmax_(outmax), error_max_(error_max), Irange_(Irange) {}
 	void update() override {
 		error[2] = error[1];        // 上上次误差

@@ -24,4 +24,8 @@ using MotorId = uint32_t;
 template <MotorType MotorT>
 class Motor { };
 
+template <MotorType MotorT>
+struct MotorConfig { };
+
+
 }

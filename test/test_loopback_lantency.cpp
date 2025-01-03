@@ -15,7 +15,8 @@ using connector::LatencyTest;
 int main(int argc, char **argv) {
     ros::init(argc, argv, "test_can_loopback_lantency");
     ros::NodeHandle nh;
-    
+    // C板 can1 can2 loopback 460us
+    // 电脑 C板 loopback 0.000508108s
     LatencyTest latency_test(nh, "can0", "test_can_lantency", "test_can_lantency_recv", 1, 2);
     // Connector<ConnectorType::CAN> connector("can0");
     // ConnectorSingleRecvNode<ConnectorType::CAN, CanFrame> crn(connector);

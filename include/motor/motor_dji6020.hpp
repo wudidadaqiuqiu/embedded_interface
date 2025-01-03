@@ -7,6 +7,12 @@
 namespace motor {
 
 template <>
+struct MotorConfig<MotorType::DJI_6020> {
+    ConnectorSingleRecvNode<ConnectorType::CAN, CanFrame>* rnode_;
+    MotorId id_;
+};
+
+template <>
 class Motor<MotorType::DJI_6020> {
     ConnectorSingleRecvNode<ConnectorType::CAN, CanFrame>* rnode_;
     MotorId id_;
@@ -17,8 +23,7 @@ class Motor<MotorType::DJI_6020> {
     connector_common::Framerate framerate_;
     public:
     static constexpr MotorId BASE_ID = 0x204;
-    Motor(ConnectorSingleRecvNode<ConnectorType::CAN, CanFrame>* rnode_,
-        MotorId id);
+    Motor(const MotorConfig<MotorType::DJI_6020>& config);
     // Motor(std::string recv_topic) {}
     void register_callback(std::function<void(const CanFrame::MSGT&)> callback) {
         rnode_->register_callback(callback);
@@ -70,9 +75,8 @@ inline void connector_common::data_convert<CanFrame, motor::MotorDji6020Pack>
 }
 
 namespace motor {
-Motor<MotorType::DJI_6020>::Motor(ConnectorSingleRecvNode<ConnectorType::CAN, CanFrame>* rnode_,
-        MotorId id) : 
-    rnode_(rnode_), id_(id) {
+Motor<MotorType::DJI_6020>::Motor(const MotorConfig<MotorType::DJI_6020>& config) : 
+    rnode_(config.rnode_), id_(config.id_) {
     using connector_common::Deg;
     using robot_msg::AngleRelate;
     
