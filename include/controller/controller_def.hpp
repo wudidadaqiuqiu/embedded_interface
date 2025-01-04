@@ -35,7 +35,7 @@ public:
 };
 
 template <ControllerType ControllerTypeT, typename ControllerBaseConfigT>
-class ControllerConfig {};
+struct ControllerConfig {};
 
 template <typename ControllerConfigT>
 class Controller {};

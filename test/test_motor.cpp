@@ -27,7 +27,7 @@ int main(int argc, char **argv) {
     constexpr motor::MotorId motor_id = 1;
     Motor<MotorType::DJI_6020> motor({&crn, motor_id});
     Controller<ControllerConfig<ControllerType::PID, ControllerBaseConfigNone>> 
-    pid_controller(10.0 * 3.0 / 16384.0, 0, 0, 0, 3, 0);
+    pid_controller({10.0 * 3.0 / 16384.0, 0, 0, 0, 3, 0});
     auto pub = nh.advertise<MotorFdb>("/motor6020_fdb", 10);
     auto l = [&pub, &motor, &cs, &pid_controller](const CanFrame::MSGT& msg) {
         pub.publish(motor.get_fdb());
