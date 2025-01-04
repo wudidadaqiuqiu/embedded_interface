@@ -33,6 +33,8 @@ class ConnectorSingleRecvNode {
         pack_manager.register_callback(func);
     }
 
+    Connector<CON_TYPE>& get_connector() { return connector; }
+
    private:
     Connector<CON_TYPE>& connector;
     PackManager<MSGPackT> pack_manager;

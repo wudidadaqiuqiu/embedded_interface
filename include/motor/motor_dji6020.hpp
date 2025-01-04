@@ -1,6 +1,7 @@
 #pragma once
 #include <functional>
 #include "connector/msgpack.hpp"
+#include "connector/connector_node.hpp"
 #include "motor/motor.hpp"
 #include "common/framerate.hpp"
 
@@ -22,6 +23,7 @@ class Motor<MotorType::DJI_6020> {
     // 帧率计算
     connector_common::Framerate framerate_;
     public:
+    using ConnectorSendNodeT = connector::ConnectorSendNode<ConnectorType::CAN, CanFrame>;
     static constexpr MotorId BASE_ID = 0x204;
     Motor(const MotorConfig<MotorType::DJI_6020>& config);
     // Motor(std::string recv_topic) {}
@@ -31,6 +33,7 @@ class Motor<MotorType::DJI_6020> {
     
     const MotorFdb& get_fdb() const { return data;}
     auto get_framerate() const { return framerate_.fps; }
+    auto& get_connector() const { return rnode_->get_connector(); }
 
     MotorId set_send_buf(real& current, std::vector<uint8_t>& buf) {
         if (buf.size() != 8) {

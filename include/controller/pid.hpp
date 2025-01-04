@@ -29,7 +29,7 @@ public:
 	void update() override {
 		error[2] = error[1];        // 上上次误差
 		error[1] = error[0];        // 上次误差
-		error[0] = ref_ - fdb_;  // 本次误差
+		error[0] = ref - fdb;  // 本次误差
 
 		if (abs(error[0] - error[1]) > 1e-6 || abs(derror) < (1e-3)) {
             derror = error[0] - error[1];
@@ -40,8 +40,8 @@ public:
 		} else {
 			error_sum = 0;
 		}
-		out_ = config.kp * error[0] + config.ki * error_sum + config.kd * derror;
-		out_ = get_mid(out_, -config.outmax, config.outmax);
+		out = config.kp * error[0] + config.ki * error_sum + config.kd * derror;
+		out = get_mid(out, -config.outmax, config.outmax);
 	}
 };
 

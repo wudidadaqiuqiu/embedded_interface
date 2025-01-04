@@ -19,18 +19,15 @@ struct ControllerBaseConfig {
 };
 
 template <typename ControllerBaseConfigT>
-class ControllerBase {
+struct ControllerBase {
 protected:
     using FdbTypeT = typename ControllerBaseConfigT::FdbType;
     using RefTypeT = typename ControllerBaseConfigT::RefType;
     using OutTypeT = typename ControllerBaseConfigT::OutType;
-    FdbTypeT fdb_;
-    RefTypeT ref_;
-    OutTypeT out_;
 public:
-    FdbTypeT& fdb() { return fdb_; }
-    RefTypeT& ref() { return ref_; }
-    OutTypeT& out() { return out_; }
+    FdbTypeT fdb;
+    RefTypeT ref;
+    OutTypeT out;
     virtual void update() {}
 };
 
