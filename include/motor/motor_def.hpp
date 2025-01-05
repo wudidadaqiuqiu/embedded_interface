@@ -1,13 +1,13 @@
 #pragma once
 #include "common/data_convert.hpp"
-#include "robot_msg/MotorFdb.h"
+#include "msg_layer/msg.hpp"
 #include "connector/msgpack.hpp"
 #include "connector/connector_node.hpp"
 
 using connector::CanFrame;
 using connector::ConnectorType;
 using connector::ConnectorSingleRecvNode;
-using robot_msg::MotorFdb;
+using con_used_msg::MotorFdb;
 
 namespace motor {
 

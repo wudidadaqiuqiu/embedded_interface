@@ -23,8 +23,7 @@ public:
 	real error[3] = {0, 0, 0};
 	real derror = 0;
 	real error_sum = 0;
-	Controller<ControllerConfig<ControllerType::PID, ControllerBaseConfigNone>>
-		(const ControllerConfig<ControllerType::PID, ControllerBaseConfigNone>& config_) : 
+	Controller(const ControllerConfig<ControllerType::PID, ControllerBaseConfigNone>& config_) : 
 		config(config_) {}
 	void update() override {
 		error[2] = error[1];        // 上上次误差

@@ -1,5 +1,5 @@
 #pragma once
-#include "robot_msg/AngleRelate.h"
+#include "msg_layer/msg.hpp"
 
 namespace connector_common {
 template <typename WrapT, typename WrapU, typename T, typename U>
@@ -16,8 +16,8 @@ struct UsefulNum {
 };
 
 template <>
-inline void data_convert<Deg, robot_msg::AngleRelate>
-    (const real& deg, robot_msg::AngleRelate& t) {
+inline void data_convert<Deg, con_used_msg::AngleRelate>
+    (const real& deg, con_used_msg::AngleRelate& t) {
     t.deg.num = deg;
     t.rad.num = deg * UsefulNum::DEG2RAD;
 }

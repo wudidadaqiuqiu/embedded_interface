@@ -81,7 +81,7 @@ namespace motor {
 Motor<MotorType::DJI_6020>::Motor(const MotorConfig<MotorType::DJI_6020>& config) : 
     rnode_(config.rnode_), id_(config.id_) {
     using connector_common::Deg;
-    using robot_msg::AngleRelate;
+    using con_used_msg::AngleRelate;
     
     auto l2 = [this](const CanFrame::MSGT& msg) {
         if (msg.id != BASE_ID + id_) 

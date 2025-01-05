@@ -1,11 +1,11 @@
 #pragma once
 #include <cstring>
 
-#include "robot_msg/IdPack.h"
+#include "msg_layer/msg.hpp"
 
 namespace connector {
 
-using robot_msg::IdPack;
+using con_used_msg::IdPack;
 
 struct CanFrame {
     using MSGT = IdPack;
@@ -16,7 +16,7 @@ struct CanFrame {
         msg.data = data;
     }
 
-    static void unpack(const IdPack::ConstPtr& msg, std::vector<uint8_t>& data, uint32_t& id) {
+    static void unpack(const IdPack::SharedPtr msg, std::vector<uint8_t>& data, uint32_t& id) {
         data.resize(msg->data.size());
         id = msg->id;
         memcpy(data.data(), msg->data.data(), msg->data.size());
