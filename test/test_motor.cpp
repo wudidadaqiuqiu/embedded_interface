@@ -3,7 +3,7 @@
 #include "motor/motor.hpp"
 #include "controller/controller.hpp"
 #include "motor_node/motor_node.hpp"
-
+#include "robot_msg/MotorRef.h"
 using connector::Connector;
 using connector::ConnectorType;
 using connector::ConnectorSingleRecvNode;
@@ -17,6 +17,7 @@ using controller::ControllerType;
 using controller::ControllerConfig;
 using controller::ControllerBaseConfigNone;
 using motor_node::MotorNode;
+using robot_msg::MotorRef;
 
 // rostopic pub /test_can_lantency connector/IdPack "id: 1"
 int main(int argc, char **argv) {
@@ -33,18 +34,31 @@ int main(int argc, char **argv) {
     MotorNode<MotorType::DJI_6020, ControllerConfig<ControllerType::PID, ControllerBaseConfigNone>> 
         motor_node({&crn, motor_id}, {
             .kp = 10.0 * 3.0 / 16384.0,
-            .ki = 0,
-            .kd = 0,
-            .error_max = 0,
-            .Irange = 0,
+            .ki = 0.7 * 3.0 / 16384.0,
+            .kd = 600.0 * 3.0 / 16384.0,
+            .error_max = 500.0 * 3.0 / 16384.0,
+            .Irange = 40.0 * 3.0 / 16384.0,
             .outmax = 3
         }
     );
+
+    MotorRef motor_ref;
+    motor_ref.pos_ref.resize(1);
+    motor_ref.pos_ref[0].num = 0;
+
+    auto sub = nh.subscribe<MotorRef>("/motor6020_cmd", 10, [&](const MotorRef::ConstPtr& msg) {
+        motor_ref = *msg;
+    });
     
     auto pub = nh.advertise<MotorFdb>("/motor6020_fdb", 10);
-    auto l = [&pub, &motor_node, &cs](const CanFrame::MSGT& msg) {
+    auto l = [&](const CanFrame::MSGT& msg) {
         pub.publish(motor_node.get_motor().get_fdb());
-        motor_node.calc_control(motor_node.get_motor().get_fdb().pos_zero_cross.deg.num, 0);
+        real ref_;
+        if (motor_ref.pos_ref.size() > 0) {
+            ref_ = motor_ref.pos_ref[0].num;
+        }
+        motor_node.calc_control(motor_node.get_motor().get_fdb().pos_zero_cross.deg.num, ref_);
+        std::cout << "ref: " << ref_ << std::endl;
         motor_node.control();
     };
     motor_node.get_motor().register_callback(l);
