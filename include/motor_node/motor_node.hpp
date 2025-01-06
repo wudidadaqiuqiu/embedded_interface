@@ -27,6 +27,11 @@ public:
         controller.ref = ref;
         controller.update();
     }
+
+    void calc_control() {
+        controller.update();
+    }
+    
     Motor<MotorT>& get_motor() { return motor; }
     
     void control() {
@@ -41,6 +46,9 @@ public:
         uint32_t id = motor.set_send_buf(controller.out, id_pack.data);
         return id;
     }
+    ControllerConfigT& get_controller_config() { return controller.config; }
+    void set_fdb(const decltype(controller.fdb)& fdb) { controller.fdb = fdb; }
+    void set_ref(const decltype(controller.ref)& ref) { controller.ref = ref; }
 };
 
 }

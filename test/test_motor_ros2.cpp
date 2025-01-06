@@ -35,7 +35,7 @@ public:
                 .kd = 600.0 * 3.0 / 16384.0,
                 .error_max = 500.0 * 3.0 / 16384.0,
                 .Irange = 40.0 * 3.0 / 16384.0,
-                .outmax = 3
+                .outmax = 3.0
             }
         ){
         motor_ref_.pos_ref.resize(1);
@@ -43,7 +43,12 @@ public:
 
         // 订阅 MotorRef
         subscription_ = this->create_subscription<MotorRef>(
-            "/motor6020_cmd", 10, std::bind(&MotorControlNode::motor_ref_callback, this, std::placeholders::_1)
+            "/motor6020_cmd", 10, [&](const MotorRef::SharedPtr msg) {
+                motor_ref_ = *msg;
+                if (motor_ref_.pos_ref.size() > 0) {
+                    motor_node_.set_ref(motor_ref_.pos_ref[0].num);
+                }
+            }
         );
 
         // 发布 MotorFdb
@@ -53,12 +58,9 @@ public:
         auto l = [&](const CanFrame::MSGT& msg) {
             (void)msg;
             publisher_->publish(motor_node_.get_motor().get_fdb());
-            real ref_;
-            if (motor_ref_.pos_ref.size() > 0) {
-                ref_ = motor_ref_.pos_ref[0].num;
-            }
-            motor_node_.calc_control(motor_node_.get_motor().get_fdb().pos_zero_cross.deg.num, ref_);
-            std::cout << "ref: " << ref_ << std::endl;
+            motor_node_.set_fdb(motor_node_.get_motor().get_fdb().pos_zero_cross.deg.num);
+            motor_node_.calc_control();
+            // std::cout << "ref: " << ref_ << std::endl;
             motor_node_.control();
         };
         motor_node_.get_motor().register_callback(l);
@@ -74,10 +76,6 @@ public:
     }
 
 private:
-    void motor_ref_callback(const MotorRef::SharedPtr msg) {
-        motor_ref_ = *msg;
-    }
-
     MotorRef motor_ref_;
     Connector<ConnectorType::CAN> connector;
     ConnectorSingleRecvNode<ConnectorType::CAN, CanFrame> crn;
