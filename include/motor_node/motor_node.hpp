@@ -19,7 +19,8 @@ class MotorNode {
     Controller<ControllerConfigT> controller;
     typename Motor<MotorT>::ConnectorSendNodeT connector_send_node;
 public:
-    MotorNode(const MotorConfig<MotorT>& motor_config, const ControllerConfigT& controller_config) : 
+    MotorNode(const MotorConfig<MotorT>& motor_config, 
+            const typename ControllerConfigT::ConstructT& controller_config) : 
         motor(motor_config), controller(controller_config), connector_send_node(motor.get_connector()) {}
 
     void calc_control(const decltype(controller.fdb)& fdb, const decltype(controller.ref)& ref) {
