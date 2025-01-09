@@ -36,7 +36,7 @@ class Connector<ConnectorType::TTY> {
         newtio.c_iflag = 0;
         newtio.c_oflag = 0;
         newtio.c_lflag = 0;
-        newtio.c_cc[VTIME] = 5; // 设置超时，单位是0.1秒
+        newtio.c_cc[VTIME] = 0; // 设置阻塞
         newtio.c_cc[VMIN] = 1;   // 至少需要读取一个字节
         // 刷新串口数据，确保配置生效
         tcflush(fd, TCIOFLUSH);
