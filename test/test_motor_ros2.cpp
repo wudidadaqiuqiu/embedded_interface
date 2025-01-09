@@ -1,6 +1,6 @@
 
 #include "rclcpp/rclcpp.hpp"
-#include "connector/connector_node.hpp"
+#include "connector/connector.hpp"
 #include "motor/motor.hpp"
 #include "controller/controller.hpp"
 #include "motor_node/motor_node.hpp"

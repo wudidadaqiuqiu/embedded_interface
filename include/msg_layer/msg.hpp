@@ -5,8 +5,6 @@
 #include "robot_msg/msg/num_real.hpp"
 #include "robot_msg/msg/num_real.h"
 
-#include "common/data_convert.hpp"
-
 namespace con_used_msg {
     using AngleRelate = robot_msg::msg::AngleRelate;
     using MotorFdb = robot_msg::msg::MotorFdb;
