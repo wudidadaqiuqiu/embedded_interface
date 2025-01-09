@@ -2,7 +2,7 @@
 #include <atomic>
 #include <thread>
 
-#include "connector/connector.hpp"
+#include "connector/connector_def.hpp"
 #include "connector/pack_manager.hpp"
 
 #define PRINT_FILE_AND_LINE() \
@@ -16,6 +16,8 @@ class ConnectorSingleRecvNode {
     ConnectorSingleRecvNode(Connector<CON_TYPE>& con) : connector(con),
                                                         pack_manager() {
         is_end = false;
+        // std::cout << "ConnectorSingleRecvNode buffer size = " << buffer.size() << std::endl;
+        buffer.resize(64);
         // pub = nh.advertise<typename MSGPackT::MSGT>(topic_name, 10);
         thread = std::thread(&ConnectorSingleRecvNode<CON_TYPE, MSGPackT>::run, this);
     }
@@ -24,6 +26,7 @@ class ConnectorSingleRecvNode {
     ~ConnectorSingleRecvNode() {
         // 在这里设置成非阻塞没用
         is_end = true;
+        connector.con_close();
         if (thread.joinable()) {
             thread.join();
         }
@@ -49,7 +52,7 @@ class ConnectorSingleRecvNode {
             try {
                 connector.con_recv(buffer, id);
             } catch (const TimeoutException& e) {
-                // std::cout << e.what() << std::endl;
+                std::cout << e.what() << std::endl;
                 continue;
             } catch (const std::exception& e) {
                 std::cout << "error: " << e.what() << std::endl;

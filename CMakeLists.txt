@@ -29,6 +29,11 @@ add_executable(test_motor
 target_include_directories(test_motor PRIVATE include)
 ament_target_dependencies(test_motor ${connector_dependencies})
 
+add_executable(test_tty
+  test/test_tty.cpp)
+target_include_directories(test_tty PRIVATE include)
+ament_target_dependencies(test_tty ${connector_dependencies})
+
 
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
@@ -44,6 +49,7 @@ endif()
 
 install (TARGETS
   test_motor
+  test_tty
 DESTINATION lib/${PROJECT_NAME})
 
 
