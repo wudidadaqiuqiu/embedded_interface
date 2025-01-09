@@ -76,14 +76,13 @@ class Connector<ConnectorType::TTY> {
     }
 
     void con_recv(std::vector<uint8_t>& data, uint32_t& id) {
-        (void)id;
-        // id len的情况
+        // (void)id;
         std::unique_lock<std::mutex> lock(mutex);
         cv.wait(lock, [this]() { return this->is_ended || this->fd >= 0;});
         if (is_ended) return;
-        std::cout << "con_recv" << std::endl;
+        // std::cout << "con_recv" << std::endl;
         int nbytes = ::read(fd, data.data(), data.size());
-        std::cout << "nbytes: " << nbytes << std::endl;
+        // std::cout << "nbytes: " << nbytes << std::endl;
         if (nbytes < 0) {
             // TODO 其他情况测试
             if (errno == EAGAIN) {
@@ -92,6 +91,7 @@ class Connector<ConnectorType::TTY> {
             throw std::runtime_error("Error receiving " + file_path_ + 
                 " " + std::string(strerror(errno)) + std::to_string(errno));
         }
+        id = nbytes;
     }
 };
 

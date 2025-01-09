@@ -33,10 +33,13 @@ struct TtyFrame {
     using MSGT = IdPack;
     MSGT& msg;
     TtyFrame(MSGT& msg) : msg(msg) {}
-    static void pack(IdPack& msg, const std::vector<uint8_t>& data, uint32_t id) {
-        (void)id;
+    static void pack(IdPack& msg, const std::vector<uint8_t>& data, uint32_t len) {
+        // (void)id;
         // msg.id = id;
-        msg.data = data;
+        // std::cout << "tty data.size() " << data.size() << std::endl;
+        msg.data.assign(data.begin(), data.begin() + 
+            std::min(len, static_cast<uint32_t>(data.size())));
+        // std::cout << "msg data.size() " << msg.data.size() << std::endl;
     }
 
     static void unpack(const IdPack::SharedPtr msg, std::vector<uint8_t>& data, uint32_t& id) {
