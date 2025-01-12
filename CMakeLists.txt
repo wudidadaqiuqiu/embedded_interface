@@ -14,7 +14,8 @@ endif()
 find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(robot_msg REQUIRED)
-
+find_package(Eigen3 REQUIRED)
+include_directories(${EIGEN3_INCLUDE_DIR} include)
 # uncomment the following section in order to fill in
 # further dependencies manually.
 # find_package(<dependency> REQUIRED)
@@ -34,6 +35,10 @@ add_executable(test_tty
 target_include_directories(test_tty PRIVATE include)
 ament_target_dependencies(test_tty ${connector_dependencies})
 
+add_executable(test_mpc
+  test/test_mpc.cpp)
+target_include_directories(test_mpc PRIVATE include)
+ament_target_dependencies(test_mpc ${connector_dependencies})
 
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
@@ -50,6 +55,7 @@ endif()
 install (TARGETS
   test_motor
   test_tty
+  test_mpc
 DESTINATION lib/${PROJECT_NAME})
 
 
