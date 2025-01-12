@@ -56,6 +56,8 @@ public:
             imu_raw_data.gyro_y = imu_data.gyro_y;
             imu_raw_data.gyro_z = imu_data.gyro_z;
             imu_raw_data.temperature = imu_data.temperature;
+
+            // 1000Hz
             publisher_->publish(imu_raw_data);
         };
         unpacker.change_map(update_func_map, check_id_func_map);

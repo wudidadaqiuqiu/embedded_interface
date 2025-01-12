@@ -18,3 +18,4 @@ sudo ip link set can0 up
 
 // test_tty.cpp
 测试imu的串口通信，注意con_open("/dev/ttyUSB0") 字符串填上对应的串口设备路径，串口数据以1000Hz接收，数据流向为connector recv node -> unpacker -> your callback
+波特率为1000000bps

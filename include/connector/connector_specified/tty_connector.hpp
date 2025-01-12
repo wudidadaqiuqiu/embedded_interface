@@ -32,7 +32,7 @@ class Connector<ConnectorType::TTY> {
         }
 
         termios newtio{};
-        newtio.c_cflag = B115200 | CS8 | CLOCAL | CREAD;
+        newtio.c_cflag = B1000000 | CS8 | CLOCAL | CREAD;
         newtio.c_iflag = 0;
         newtio.c_oflag = 0;
         newtio.c_lflag = 0;
