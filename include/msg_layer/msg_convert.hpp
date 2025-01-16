@@ -30,3 +30,13 @@ inline void connector_common::data_convert
     data_convert<decltype(a.irange), decltype(b.irange)>(a.irange, b.irange);
     data_convert<decltype(a.outmax), decltype(b.outmax)>(a.outmax, b.outmax);
 }
+
+
+template <>
+inline void connector_common::data_convert
+    <con_used_msg::LqrParamStruct, con_used_msg::LqrParam>
+    (const con_used_msg::LqrParamStruct& a, con_used_msg::LqrParam& b) {
+    data_convert<decltype(a.kp), decltype(b.kp)>(a.kp, b.kp);
+    data_convert<decltype(a.kd), decltype(b.kd)>(a.kd, b.kd);
+    data_convert<decltype(a.outmax), decltype(b.outmax)>(a.outmax, b.outmax);
+}

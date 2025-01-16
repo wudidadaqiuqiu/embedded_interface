@@ -9,6 +9,7 @@ namespace controller {
 
 enum ControllerType {
     PID = 0,
+    LQR = 1,
 };
 
 template <typename FdbTypeT, typename RefTypeT, typename OutTypeT>

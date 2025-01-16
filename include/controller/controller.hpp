@@ -2,3 +2,4 @@
 
 #include "controller/controller_def.hpp"
 #include "controller/pid.hpp"
+#include "controller/lqr.hpp"
