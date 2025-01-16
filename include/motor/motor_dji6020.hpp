@@ -9,13 +9,13 @@ namespace motor {
 
 template <>
 struct MotorConfig<MotorType::DJI_6020> {
-    ConnectorSingleRecvNode<ConnectorType::CAN, CanFrame>* rnode_;
+    ConnectorSingleRecvNode<ConnectorType::CAN, CanFrame>& rnode_;
     MotorId id_;
 };
 
 template <>
 class Motor<MotorType::DJI_6020> {
-    ConnectorSingleRecvNode<ConnectorType::CAN, CanFrame>* rnode_;
+    ConnectorSingleRecvNode<ConnectorType::CAN, CanFrame>& rnode_;
     MotorId id_;
     MotorFdb data;
     real last_pos_deg;
@@ -28,12 +28,12 @@ class Motor<MotorType::DJI_6020> {
     Motor(const MotorConfig<MotorType::DJI_6020>& config);
     // Motor(std::string recv_topic) {}
     void register_callback(std::function<void(const CanFrame::MSGT&)> callback) {
-        rnode_->register_callback(callback);
+        rnode_.register_callback(callback);
     }
     
     const MotorFdb& get_fdb() const { return data;}
     auto get_framerate() const { return framerate_.fps; }
-    auto& get_connector() const { return rnode_->get_connector(); }
+    auto& get_connector() const { return rnode_.get_connector(); }
 
     MotorId set_send_buf(real& current, std::vector<uint8_t>& buf) {
         if (buf.size() != 8) {
@@ -96,7 +96,7 @@ Motor<MotorType::DJI_6020>::Motor(const MotorConfig<MotorType::DJI_6020>& config
         // 帧率计算
         framerate_.update();
     };
-    rnode_->register_callback(l2);
+    rnode_.register_callback(l2);
 }
 
 }

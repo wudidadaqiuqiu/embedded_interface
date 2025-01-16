@@ -42,7 +42,7 @@ public:
         : Node("test_motor"), 
         connector("can0"), crn(connector), cs(connector),
         motor_node_(
-            {&crn, motor_id}, PID_PARAM){
+            {crn, motor_id}, PID_PARAM){
         motor_ref_.pos_ref.resize(1);
         motor_ref_.pos_ref[0].num = 0;
 
