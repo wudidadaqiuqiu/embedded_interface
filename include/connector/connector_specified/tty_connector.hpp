@@ -23,7 +23,7 @@ class Connector<ConnectorType::TTY> {
     // uint8_t buf[64];
 
    public:
-    void con_open(std::string file_path) {
+    void con_open(std::string file_path, BaudRate baud_rate) {
         fd = ::open(file_path.c_str(), O_RDWR | O_NOCTTY | O_NDELAY);
         fcntl(fd, F_SETFL, 0);
         if (fd < 0) {
@@ -32,7 +32,15 @@ class Connector<ConnectorType::TTY> {
         }
 
         termios newtio{};
-        newtio.c_cflag = B1000000 | CS8 | CLOCAL | CREAD;
+        switch (baud_rate) {
+        case BaudRate::BAUD_1M:
+            newtio.c_cflag = B1000000 | CS8 | CLOCAL | CREAD;
+            break;
+        default:
+            throw std::runtime_error("Unsupported baud rate ");
+            break;
+        }
+        
         newtio.c_iflag = 0;
         newtio.c_oflag = 0;
         newtio.c_lflag = 0;
@@ -44,6 +52,7 @@ class Connector<ConnectorType::TTY> {
         if (tcsetattr(fd, TCSANOW, &newtio) != 0) {
             throw std::runtime_error("Unable to set serial port attributes: " + std::string(strerror(errno)));
         }
+        std::cout << "Open tty " << file_path << " success" << std::endl;
         cv.notify_all();
     }
 

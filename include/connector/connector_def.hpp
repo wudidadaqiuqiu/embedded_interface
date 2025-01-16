@@ -7,6 +7,11 @@ enum ConnectorType {
     TTY = 1
 };
 
+enum BaudRate {
+    BAUD_1M,
+
+};
+
 template <ConnectorType CON_TYPE>
 class Connector {
 };

@@ -6,6 +6,7 @@
 
 using connector::Connector;
 using connector::ConnectorType;
+using connector::BaudRate;
 using connector::ConnectorSingleRecvNode;
 using connector::ConnectorSendNode;
 using connector::IdPack;
@@ -37,7 +38,7 @@ public:
     TtyNode() 
         : Node("test_tty"), 
         connector(), crn(connector), cs(connector) {
-        connector.con_open("/dev/ttyUSB0");
+        connector.con_open("/dev/ttyUSB0", BaudRate::BAUD_1M);
         std::cout << "open tty" << std::endl;
         publisher_ = this->create_publisher<ImuRaw>("/imu_raw", 10);
         std::map<uint8_t, std::function<void(uint8_t, const uint8_t*, uint16_t)>> 
