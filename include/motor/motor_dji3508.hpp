@@ -5,6 +5,7 @@
 #include "motor/motor_def.hpp"
 #include "motor/motor_dji6020.hpp"
 #include "common/framerate.hpp"
+#include "msg_layer/msg_layer.hpp"
 
 namespace motor {
 

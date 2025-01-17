@@ -3,7 +3,7 @@
 #include "connector/msgpack.hpp"
 #include "connector/connector_node.hpp"
 #include "common/framerate.hpp"
-
+#include "msg_layer/msg_layer.hpp"
 namespace motor {
 
 template <>

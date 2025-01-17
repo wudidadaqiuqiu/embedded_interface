@@ -1,5 +1,6 @@
 #pragma once
 
+#include "common/common_calc.hpp"
 #include "common/data_convert.hpp"
 
 using connector_common::real;

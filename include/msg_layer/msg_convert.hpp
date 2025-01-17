@@ -1,5 +1,6 @@
 #pragma once
 
+#include "common/data_convert.hpp"
 #include "msg_layer/msg.hpp"
 #include "msg_layer/dynamic_param.hpp"
 
@@ -16,6 +17,14 @@ inline void connector_common::data_convert
     <con_used_msg::NumReal, con_used_msg::NumRealStruct>
     (const con_used_msg::NumReal& a, con_used_msg::NumRealStruct& b) {
     b.num = a.num;
+}
+
+
+template <>
+inline void connector_common::data_convert<connector_common::Deg, con_used_msg::AngleRelate>
+    (const real& deg, con_used_msg::AngleRelate& t) {
+    t.deg.num = deg;
+    t.rad.num = deg * UsefulNum::DEG2RAD;
 }
 
 
