@@ -30,6 +30,11 @@ add_executable(test_motor
 target_include_directories(test_motor PRIVATE include)
 ament_target_dependencies(test_motor ${connector_dependencies})
 
+add_executable(test_3508
+  test/test_3508.cpp)
+target_include_directories(test_3508 PRIVATE include)
+ament_target_dependencies(test_3508 ${connector_dependencies})
+
 add_executable(test_tty
   test/test_tty.cpp)
 target_include_directories(test_tty PRIVATE include)
@@ -54,6 +59,7 @@ endif()
 
 install (TARGETS
   test_motor
+  test_3508
   test_tty
   test_mpc
 DESTINATION lib/${PROJECT_NAME})

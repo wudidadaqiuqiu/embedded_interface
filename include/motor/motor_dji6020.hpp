@@ -2,7 +2,6 @@
 #include <functional>
 #include "connector/msgpack.hpp"
 #include "connector/connector_node.hpp"
-#include "motor/motor.hpp"
 #include "common/framerate.hpp"
 
 namespace motor {
@@ -15,6 +14,7 @@ struct MotorConfig<MotorType::DJI_6020> {
 
 template <>
 class Motor<MotorType::DJI_6020> {
+    protected:
     ConnectorSingleRecvNode<ConnectorType::CAN, CanFrame>& rnode_;
     MotorId id_;
     MotorFdb data;
@@ -25,8 +25,9 @@ class Motor<MotorType::DJI_6020> {
     public:
     using ConnectorSendNodeT = connector::ConnectorSendNode<ConnectorType::CAN, CanFrame>;
     static constexpr MotorId BASE_ID = 0x204;
-    Motor(const MotorConfig<MotorType::DJI_6020>& config);
-    // Motor(std::string recv_topic) {}
+    Motor(ConnectorSingleRecvNode<ConnectorType::CAN, CanFrame>& rnode, MotorId id) : rnode_(rnode), id_(id) {}
+    Motor(const MotorConfig<MotorType::DJI_6020>& config, bool to_register = true);
+
     void register_callback(std::function<void(const CanFrame::MSGT&)> callback) {
         rnode_.register_callback(callback);
     }
@@ -78,11 +79,13 @@ inline void connector_common::data_convert<CanFrame, motor::MotorDji6020Pack>
 }
 
 namespace motor {
-Motor<MotorType::DJI_6020>::Motor(const MotorConfig<MotorType::DJI_6020>& config) : 
+Motor<MotorType::DJI_6020>::Motor(const MotorConfig<MotorType::DJI_6020>& config, bool to_register) : 
     rnode_(config.rnode_), id_(config.id_) {
     using connector_common::Deg;
     using con_used_msg::AngleRelate;
-    
+    if (!to_register) {
+        return;
+    }
     auto l2 = [this](const CanFrame::MSGT& msg) {
         if (msg.id != BASE_ID + id_) 
             return;

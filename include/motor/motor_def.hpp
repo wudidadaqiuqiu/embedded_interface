@@ -12,7 +12,8 @@ using con_used_msg::MotorFdb;
 namespace motor {
 
 enum MotorType {
-    DJI_6020 = 0,
+    DJI_6020,
+    DJI_3508
 };
 
 using connector_common::data_convert;
