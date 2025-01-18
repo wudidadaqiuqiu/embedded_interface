@@ -22,7 +22,7 @@ class Connector<ConnectorType::CAN> {
     std::string can_interface_name_;
 
    public:
-    Connector(std::string can_interface_name) : can_interface_name_(can_interface_name) {
+    Connector(const std::string& can_interface_name) : can_interface_name_(can_interface_name) {
         LOG_DEBUG(1, "CAN Connector Constructor %s", can_interface_name.c_str());
         sockfd = socket(PF_CAN, SOCK_RAW, CAN_RAW);
         if (sockfd < 0) {

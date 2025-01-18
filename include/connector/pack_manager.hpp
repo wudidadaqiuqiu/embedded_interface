@@ -39,7 +39,7 @@ class PackManager {
     void push_pack(const MSGT& pack) {
         // std::cout << "queue push" << std::endl;
         {
-            std::unique_lock<std::mutex> l(mutex);
+            std::unique_lock<std::mutex> lock(mutex);
             packs.push(pack);
         }
         cv.notify_all();

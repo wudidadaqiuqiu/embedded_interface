@@ -16,7 +16,7 @@ struct CanFrame {
         msg.data = data;
     }
 
-    static void unpack(const IdPack::SharedPtr msg, std::vector<uint8_t>& data, uint32_t& id) {
+    static void unpack(const IdPack::SharedPtr& msg, std::vector<uint8_t>& data, uint32_t& id) {
         data.resize(msg->data.size());
         id = msg->id;
         memcpy(data.data(), msg->data.data(), msg->data.size());
@@ -42,7 +42,7 @@ struct TtyFrame {
         // std::cout << "msg data.size() " << msg.data.size() << std::endl;
     }
 
-    static void unpack(const IdPack::SharedPtr msg, std::vector<uint8_t>& data, uint32_t& id) {
+    static void unpack(const IdPack::SharedPtr& msg, std::vector<uint8_t>& data, uint32_t& id) {
         CanFrame::unpack(msg, data, id);
     }
 };
