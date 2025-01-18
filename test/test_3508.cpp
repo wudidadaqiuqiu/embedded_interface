@@ -3,6 +3,7 @@
 #include "connector/connector.hpp"
 #include "motor/motor.hpp"
 #include "controller/controller.hpp"
+#include "observer/observer.hpp"
 #include "motor_node/motor_node.hpp"
 #include "msg_layer/msg_layer.hpp"
 #include "robot_msg/msg/motor_ref.hpp"

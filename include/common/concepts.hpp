@@ -1,5 +1,4 @@
 #pragma once
-#include <concepts>
 
 
 namespace connector_common {

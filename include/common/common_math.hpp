@@ -13,7 +13,7 @@ inline int fsgn(float x) {
 // #pragma GCC diagnostic pop
 }
 
-int fsg(float x, float d) {
+inline int fsg(float x, float d) {
     return ((fsgn(x + d) - fsgn(x - d)) / 2);
 }
 

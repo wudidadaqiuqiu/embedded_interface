@@ -1,7 +1,8 @@
 #pragma once
 #include <cstdint>
+#include <cstring>
 #include <map>
-#include <ranges>
+#include <mutex>
 #include <functional>
 
 #include "common/concepts.hpp"

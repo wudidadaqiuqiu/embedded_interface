@@ -1,6 +1,5 @@
 #pragma once
 #include <cstdint>
-#include <ranges>
 
 namespace connector_common {
 
