@@ -4,12 +4,13 @@
 #include <string>
 #include <cerrno>
 #include <cstring>
-#include <iostream>
 #include <vector>
 #include <fcntl.h>
 #include <termios.h>
 #include <unistd.h>
-
+#include <condition_variable>
+#include <mutex>
+#include "common/debug/log.hpp"
 namespace connector {
 
 template <>
@@ -52,7 +53,8 @@ class Connector<ConnectorType::TTY> {
         if (tcsetattr(fd, TCSANOW, &newtio) != 0) {
             throw std::runtime_error("Unable to set serial port attributes: " + std::string(strerror(errno)));
         }
-        std::cout << "Open tty " << file_path << " success" << std::endl;
+        LOG_INFO(1, "Open tty %s success", file_path.c_str());
+        // std::cout << "Open tty " << file_path << " success" << std::endl;
         cv.notify_all();
     }
 
@@ -69,7 +71,8 @@ class Connector<ConnectorType::TTY> {
         tcgetattr(fd, &old);
         old.c_cc[VMIN] = 0;
         tcsetattr(fd, TCSANOW, &old);
-        std::cout << "close tty" << std::endl;
+        // std::cout << "close tty" << std::endl;
+        LOG_INFO(1, "close tty");
         ::close(fd);
         fd = -1;
         cv.notify_all();

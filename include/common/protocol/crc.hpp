@@ -1,6 +1,8 @@
 #pragma once
+#include <array>
 #include <cstdint>
-
+#include <cstddef>
+#include <concepts>
 namespace connector_common {
 
 template <uint16_t crc_init, uint16_t poly>

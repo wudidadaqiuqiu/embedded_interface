@@ -3,15 +3,16 @@
 #include <fcntl.h>
 #include <linux/can.h>
 #include <net/if.h>
+#include <stdexcept>
 #include <sys/ioctl.h>
 #include <sys/socket.h>
 #include <unistd.h>
 
 #include <cerrno>
 #include <cstring>
-#include <iostream>
 #include <vector>
 
+#include "common/debug/log.hpp"
 namespace connector {
 
 template <>
@@ -22,11 +23,11 @@ class Connector<ConnectorType::CAN> {
 
    public:
     Connector(std::string can_interface_name) : can_interface_name_(can_interface_name) {
+        LOG_DEBUG(1, "CAN Connector Constructor %s", can_interface_name.c_str());
         sockfd = socket(PF_CAN, SOCK_RAW, CAN_RAW);
         if (sockfd < 0) {
             throw std::runtime_error("Error opening socket " + std::string(strerror(errno)));
         }
-
         // 获取 CAN 设备接口索引
         struct ifreq ifr;
         std::memset(&ifr, 0, sizeof(struct ifreq));
@@ -110,7 +111,8 @@ class Connector<ConnectorType::CAN> {
             // perror("fcntl(F_SETFL) failed");
             return -1;
         }
-        std::cout << "Socket set to non-blocking mode" << std::endl;
+        LOG_INFO(1, "Socket set to non-blocking mode");
+        // std::cout << "Socket set to non-blocking mode" << std::endl;
         return 0;  // 设置成功
     }
 

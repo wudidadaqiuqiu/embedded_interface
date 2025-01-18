@@ -1,5 +1,6 @@
 #pragma once
 #include <functional>
+#include "motor/motor_def.hpp"
 #include "connector/msgpack.hpp"
 #include "connector/connector_node.hpp"
 #include "common/framerate.hpp"

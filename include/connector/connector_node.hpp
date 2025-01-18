@@ -2,6 +2,7 @@
 #include <atomic>
 #include <thread>
 
+#include "common/debug/log.hpp"
 #include "connector/connector_def.hpp"
 #include "connector/pack_manager.hpp"
 
@@ -52,11 +53,10 @@ class ConnectorSingleRecvNode {
             try {
                 connector.con_recv(buffer, id);
             } catch (const TimeoutException& e) {
-                std::cout << e.what() << std::endl;
+                LOG_ERROR(1, "%s", e.what());
                 continue;
             } catch (const std::exception& e) {
-                std::cout << "error: " << e.what() << std::endl;
-                PRINT_FILE_AND_LINE();
+                LOG_ERROR(1, "error: %s, %s, %d", e.what(), __FILE__, __LINE__);
                 throw e;
             }
             // std::cout << "recv: " << id << std::endl;
@@ -93,7 +93,8 @@ class ConnectorSendNode {
         try {
             connector.con_send(buffer, id_);
         } catch (const std::exception& e) {
-            std::cout << "error: " << e.what() << std::endl;
+            LOG_ERROR(1, "error: %s", e.what());
+            // std::cout << "error: " << e.what() << std::endl;
             return;
         }
     }
@@ -110,7 +111,8 @@ class ConnectorSendNode {
         try {
             connector.con_send(buffer, id_);
         } catch (const std::exception& e) {
-            std::cout << "error: " << e.what() << std::endl;
+            LOG_ERROR(1, "error: %s", e.what());
+            // std::cout << "error: " << e.what() << std::endl;
             return;
         }
     }

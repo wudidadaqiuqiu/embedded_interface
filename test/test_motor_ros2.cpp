@@ -111,6 +111,7 @@ private:
 };
 
 int main(int argc, char **argv) {
+    // LOG_WARN(1, "test_motor_ros2.cpp");
     rclcpp::init(argc, argv);
     rclcpp::spin(std::make_shared<MotorControlNode>());
     rclcpp::shutdown();
