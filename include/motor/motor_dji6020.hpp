@@ -75,8 +75,8 @@ struct MotorDji6020Pack {
 
 template <>
 inline void connector_common::data_convert<CanFrame, motor::MotorDji6020Pack>
-    (const CanFrame::MSGT& src, MotorFdb& dst) {
-    motor::motor_6020_pack(dst, src.data, src.id);
+    (const CanFrame& src, motor::MotorDji6020Pack& dst) {
+    motor::motor_6020_pack(dst.msg, src.msg.data, src.msg.id);
 }
 
 namespace motor {
@@ -91,12 +91,13 @@ Motor<MotorType::DJI_6020>::Motor(const MotorConfig<MotorType::DJI_6020>& config
         if (msg.id != BASE_ID + id_) 
             return;
         last_pos_deg = data.pos.deg.num;
-        data_convert<CanFrame, MotorDji6020Pack>(msg, data);
+        motor::MotorDji6020Pack temp(data);
+        data_convert(CanFrame(const_cast<CanFrame::MSGT&>(msg)), temp);
         if (data.pos.deg.num - last_pos_deg > 180.0)
             round--;
         else if (data.pos.deg.num - last_pos_deg < -180.0)
             round++;
-        data_convert<Deg, AngleRelate>(data.pos.deg.num + round * 360.0f, data.pos_zero_cross);
+        data_convert(Deg(data.pos.deg.num + round * 360.0f), data.pos_zero_cross);
         // 帧率计算
         framerate_.update();
     };

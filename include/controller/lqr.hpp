@@ -19,7 +19,7 @@ struct ControllerConfig<ControllerType::LQR, VVrControllerConfig<2>> {
     decltype(param.kd.num)& kd = param.kd.num;
     decltype(param.outmax.num)& outmax = param.outmax.num;
     ControllerConfig(const ConstructT& param_struct) {
-        data_convert<ConstructT, decltype(param)>(param_struct, param);
+        data_convert(param_struct, param);
     }
 };
 

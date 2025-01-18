@@ -15,7 +15,7 @@ struct ControllerConfig<ControllerType::PID, ControllerBaseConfigNone> {
 	decltype(param.irange.num)& irange = param.irange.num;
 	decltype(param.outmax.num)& outmax = param.outmax.num;
 	ControllerConfig(const ConstructT& param_struct) {
-		data_convert<ConstructT, decltype(param)>(param_struct, param);
+		data_convert(param_struct, param);
 	}
 	// sizeof(param) + 6 * sizeof(void*)
 };

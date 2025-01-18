@@ -3,8 +3,12 @@
 
 namespace connector_common {
 using real = float;
-using Deg = real;
-using Rad = real;
+struct Deg {
+    real val;
+};
+struct Rad {
+    real val;
+};
 // 传入参数为浮点数的符号函数
 inline int fsgn(float x) {
 // #pragma GCC diagnostic push
