@@ -1,9 +1,9 @@
 #pragma once
 #include <Eigen/Dense>
 #include "observer/model.hpp"
-
+#include "common/debug/log.hpp"
 namespace observer {
-template <unsigned int xnum, unsigned int unum, unsigned int znum>
+template <size_t xnum, size_t unum, size_t znum>
 class KalmanFilter {
    public:
     KalmanFilter(const StateSpaceModel<xnum, unum, znum>& model) : model(model) {
@@ -18,9 +18,7 @@ class KalmanFilter {
             xpre = model.A * x + model.B * u;
             P = model.A * P * model.A.transpose() + Q;
         } catch (const std::exception& e) {
-            std::cerr << e.what() << '\n';
-            // LIB_DEBUG(e.what());
-            // LIB_DEBUG("\n");
+            LOG_ERROR(1, "%s", e.what());
         }
     }
 
@@ -36,9 +34,7 @@ class KalmanFilter {
             P = (I - K * model.C) * P;
         }
         catch(const std::exception& e) {
-            std::cerr << e.what() << '\n';
-            // LIB_DEBUG(e.what());
-            // LIB_DEBUG("\n");
+            LOG_ERROR(1, "%s", e.what());
         }
     }
    protected:

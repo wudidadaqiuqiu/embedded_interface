@@ -20,7 +20,7 @@ using connector_common::protocol_type_e;
 using robot_msg::msg::ImuRaw;
 
 
-inline void printArray(const uint8_t* arr, size_t length) {
+inline void print_array(const uint8_t* arr, size_t length) {
     std::cout << std::hex;
     for (size_t i = 0; i < length; ++i) {
         std::cout << "0x" << static_cast<int>(arr[i]) << " ";
@@ -72,7 +72,7 @@ public:
         // 定时器
         timer_ = this->create_wall_timer(
             std::chrono::seconds(1),
-            [this]() -> void {
+            []() -> void {
             }
         );
     }
