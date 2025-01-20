@@ -17,10 +17,8 @@ using connector::IdPack;
 using connector::CanFrame;
 // using motor::Motor;
 using motor::MotorType;
-// using controller::Controller;
 using controller::ControllerType;
-using controller::ControllerConfig;
-using controller::ControllerBaseConfigNone;
+using controller::Controller;
 using motor_node::MotorNode;
 using robot_msg::msg::MotorRef;
 
@@ -99,8 +97,7 @@ private:
     Connector<ConnectorType::CAN> connector;
     ConnectorSingleRecvNode<ConnectorType::CAN, CanFrame> crn;
     ConnectorSendNode<ConnectorType::CAN, CanFrame> cs;
-    MotorNode<MotorType::DJI_3508, 
-        ControllerConfig<ControllerType::PID, ControllerBaseConfigNone>> 
+    MotorNode<MotorType::DJI_3508, ControllerType::PID> 
         motor_node_;
     // rclcpp::Subscription<MotorRef>::SharedPtr subscription_;
     rclcpp::Subscription<MotorRef>::SharedPtr subscription_;

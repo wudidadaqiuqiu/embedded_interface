@@ -6,21 +6,20 @@
 
 namespace motor_node {
 using connector::ConnectorSendNode;
+using controller::ControllerType;
+using controller::Controller;
 using motor::Motor;
 using motor::MotorConfig;
 using motor::MotorType;
-using controller::ControllerBase;
-using controller::Controller;
-using controller::ControllerConfig;
 
-template <MotorType MotorT, typename ControllerConfigT>
+template <MotorType MotorT, ControllerType ControllerTypeT, typename... ControllerArgs>
 class MotorNode {
     Motor<MotorT> motor;
-    Controller<ControllerConfigT> controller;
+    Controller<ControllerTypeT>::template Type<ControllerArgs...> controller;
     typename Motor<MotorT>::ConnectorSendNodeT connector_send_node;
 public:
     MotorNode(const MotorConfig<MotorT>& motor_config, 
-            const typename ControllerConfigT::ConstructT& controller_config) : 
+            const typename Controller<ControllerTypeT>::ConstructT& controller_config) : 
         motor(motor_config), controller(controller_config), connector_send_node(motor.get_connector()) {}
 
     void calc_control(const decltype(controller.fdb)& fdb, const decltype(controller.ref)& ref) {
@@ -47,7 +46,7 @@ public:
         uint32_t id = motor.set_send_buf(controller.out, id_pack.data);
         return id;
     }
-    ControllerConfigT& get_controller_config() { return controller.config; }
+    auto& get_controller_config() { return controller.config; }
     void set_fdb(const decltype(controller.fdb)& fdb) { controller.fdb = fdb; }
     void set_ref(const decltype(controller.ref)& ref) { controller.ref = ref; }
 };
