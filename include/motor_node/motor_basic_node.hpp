@@ -14,13 +14,13 @@ using motor::MotorType;
 
 template <MotorType MotorT, ControllerType ControllerTypeT,
 		  typename... ControllerArgs>
-class MotorNode {
+class MotorBasicNode {
 	Motor<MotorT> motor;
 	Controller<ControllerTypeT>::template Type<ControllerArgs...> controller;
 	typename Motor<MotorT>::ConnectorSendNodeT connector_send_node;
 
    public:
-	MotorNode(const Motor<MotorT>::Config& motor_config,
+	MotorBasicNode(const Motor<MotorT>::Config& motor_config,
 			  const typename Controller<ControllerTypeT>::ConstructT&
 				  controller_config)
 		: motor(motor_config),

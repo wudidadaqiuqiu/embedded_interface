@@ -4,7 +4,7 @@
 #include "motor/motor.hpp"
 #include "controller/controller.hpp"
 #include "observer/observer.hpp"
-#include "motor_node/motor_node.hpp"
+#include "motor_node/motor_basic_node.hpp"
 #include "msg_layer/msg_layer.hpp"
 #include "robot_msg/msg/motor_ref.hpp"
 #include "robot_msg/msg/pid_param_set.hpp"
@@ -19,7 +19,7 @@ using connector::CanFrame;
 using motor::MotorType;
 using controller::ControllerType;
 using controller::Controller;
-using motor_node::MotorNode;
+using motor_node::MotorBasicNode;
 using robot_msg::msg::MotorRef;
 
 using con_used_msg::PidParam;
@@ -97,7 +97,7 @@ private:
     Connector<ConnectorType::CAN> connector;
     ConnectorSingleRecvNode<ConnectorType::CAN, CanFrame> crn;
     ConnectorSendNode<ConnectorType::CAN, CanFrame> cs;
-    MotorNode<MotorType::DJI_3508, ControllerType::PID> 
+    MotorBasicNode<MotorType::DJI_3508, ControllerType::PID> 
         motor_node_;
     // rclcpp::Subscription<MotorRef>::SharedPtr subscription_;
     rclcpp::Subscription<MotorRef>::SharedPtr subscription_;
