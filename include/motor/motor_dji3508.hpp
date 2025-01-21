@@ -20,7 +20,6 @@ class Motor<MotorType::DJI_3508> : public Motor<MotorType::DJI_6020> {
 	constexpr auto control_frame_low() -> MotorId override { return 0x200; };
 	constexpr auto control_frame_high() -> MotorId override { return 0x1FF; };
 	constexpr auto max_current() -> real override { return 20.0; };
-	// 用了override，必须实现
 	Motor(const Config& config) : PARENT(config) {}
 };
 

@@ -45,6 +45,11 @@ add_executable(test_mpc
 target_include_directories(test_mpc PRIVATE include)
 ament_target_dependencies(test_mpc ${connector_dependencies})
 
+add_executable(omni3
+  src/apps/omni3.cpp)
+target_include_directories(omni3 PRIVATE include ${CMAKE_CURRENT_SOURCE_DIR})
+ament_target_dependencies(omni3 ${connector_dependencies})
+
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
   # the following line skips the linter which checks for copyrights
@@ -58,6 +63,7 @@ if(BUILD_TESTING)
 endif()
 
 install (TARGETS
+  omni3
   test_motor
   test_3508
   test_tty

@@ -36,7 +36,24 @@ class Motor<MotorType::DJI_6020> {
 	};
 	using ConnectorSendNodeT =
 		connector::ConnectorSendNode<ConnectorType::CAN, CanFrame>;
-	Motor(const Config& config);
+	Motor(const Config& config): rnode_(config.rnode_), id_(config.id_) {
+		using con_used_msg::AngleRelate;
+		using connector_common::Deg;
+		auto l2 = [this](const CanFrame::MSGT& msg) {
+			if (msg.id != base_id() + id_) return;
+			last_pos_deg = data.pos.deg.num;
+			pack(msg, data);
+			if (data.pos.deg.num - last_pos_deg > 180.0)
+				round--;
+			else if (data.pos.deg.num - last_pos_deg < -180.0)
+				round++;
+			data_convert(Deg(data.pos.deg.num + round * 360.0f),
+						data.pos_zero_cross);
+			// 帧率计算
+			framerate_.update();
+		};
+		rnode_.register_callback(l2);
+	}
 
 	void register_callback(
 		std::function<void(const CanFrame::MSGT&)> callback) {
@@ -75,25 +92,5 @@ class Motor<MotorType::DJI_6020> {
 		return id;
 	}
 };
-
-Motor<MotorType::DJI_6020>::Motor(const Config& config)
-	: rnode_(config.rnode_), id_(config.id_) {
-	using con_used_msg::AngleRelate;
-	using connector_common::Deg;
-	auto l2 = [this](const CanFrame::MSGT& msg) {
-		if (msg.id != base_id() + id_) return;
-		last_pos_deg = data.pos.deg.num;
-		pack(msg, data);
-		if (data.pos.deg.num - last_pos_deg > 180.0)
-			round--;
-		else if (data.pos.deg.num - last_pos_deg < -180.0)
-			round++;
-		data_convert(Deg(data.pos.deg.num + round * 360.0f),
-					 data.pos_zero_cross);
-		// 帧率计算
-		framerate_.update();
-	};
-	rnode_.register_callback(l2);
-}
 
 }  // namespace motor
