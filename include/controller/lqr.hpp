@@ -3,7 +3,7 @@
 #include "Eigen/Dense"
 #include "controller/controller_def.hpp"
 #include "msg_layer/msg_layer.hpp"
-
+#include "common/debug/log.hpp"
 namespace controller {
 using connector_common::data_convert;
 using connector_common::real;
@@ -19,15 +19,24 @@ class LqrController : public ControllerData<Eigen::Vector<real, 2>, Eigen::Vecto
         Config(const ConstructT& param_struct) {
             data_convert(param_struct, param);
         }
+        Config() = default;
+        // opetator=
+        auto& operator=(const Config& config){
+            this->param = config.param;
+            return *this;
+        }
     };
     Config config;
     LqrController(const Config::ConstructT& config_) : config(config_) {}
+    LqrController() = default;
     Eigen::Vector<real, 2> error;
 
     void update() {
         error = ref - fdb;
+        // LOG_INFO(1, "error: %f, %f", error(0), error(1));
         out = config.kp * error(0) + config.kd * error(1);
         out = get_mid(out, -config.outmax, config.outmax);
+        // LOG_INFO(1, "error: %f, %f, %f", error(0), error(1), out);
     }
 };
 

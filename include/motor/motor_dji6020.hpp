@@ -57,7 +57,10 @@ class Motor<MotorType::DJI_6020> {
 
 	void register_callback(
 		std::function<void(const CanFrame::MSGT&)> callback) {
-		rnode_.register_callback(callback);
+		rnode_.register_callback([this, callback](const CanFrame::MSGT& msg) {
+		    if (msg.id != base_id() + id_) return;
+		    callback(msg);
+		});
 	}
 	static void motor_6020_pack(MotorFdb& msg, const std::vector<uint8_t>& data,
 								uint32_t id, real max_current) {

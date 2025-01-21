@@ -1,7 +1,7 @@
 #pragma once
 #include "motor/motor.hpp"
 #include "rclcpp/rclcpp.hpp"
-
+#include "common/debug/log.hpp"
 namespace motor_node {
 using motor::Motor;
 using motor::MotorType;
@@ -9,6 +9,7 @@ using motor::MotorType;
 template <MotorType MotorTypeT>
 class MotorNode : public rclcpp::Node {
    public:
+	using SharedPtr = std::shared_ptr<MotorNode<MotorTypeT>>;
 	struct Config {
 		std::string name;
 		Motor<MotorTypeT>::Config motor_config;
@@ -17,7 +18,8 @@ class MotorNode : public rclcpp::Node {
 		const bool is_log = false;
 	};
 	MotorNode(const Config& config);
-
+	auto get_motor() -> auto& { return motor_; }
+	const std::string fdb_topic;
    private:
 	Motor<MotorTypeT> motor_;
 	rclcpp::Publisher<MotorFdb>::SharedPtr publisher_;
@@ -26,13 +28,15 @@ class MotorNode : public rclcpp::Node {
 
 template <MotorType MotorTypeT>
 MotorNode<MotorTypeT>::MotorNode(const Config& config)
-	: Node(config.name, config.options), motor_(config.motor_config) {
+	: Node(config.name, config.options), fdb_topic("/" + config.name + "/motor_fdb"), motor_(config.motor_config) {
+	LOG_INFO(1, "motor node start id: %d", config.motor_config.id_);
 	publisher_ = this->create_publisher<MotorFdb>(
-		"/" + config.name + "/motor_fdb", config.fdb_pub_qos);
+		fdb_topic, config.fdb_pub_qos);
 	// 注册回调函数
-	auto l = [&](const CanFrame::MSGT& msg) {
+	auto l = [this, config](const CanFrame::MSGT& msg) {
 		(void)msg;
 		publisher_->publish(motor_.get_fdb());
+		// LOG_INFO_CNT(1000, "motor fdb id: %d, id: %d", config.motor_config.id_, msg.id);
 	};
 	motor_.register_callback(l);
 
