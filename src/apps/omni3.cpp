@@ -3,7 +3,7 @@
 #include "motor/motor.hpp"
 #include "connector/connector.hpp"
 #include "msg_layer/msg_layer.hpp"
-
+#include "std_msgs/msg/float32_multi_array.hpp"
 using connector::Connector;
 using connector::ConnectorType;
 using connector::ConnectorSingleRecvNode;
@@ -19,7 +19,12 @@ public:
         create_wheel_motor(1);
         create_wheel_motor(2);
         create_wheel_motor(3);
-
+        refsubscription = this->create_subscription<std_msgs::msg::Float32MultiArray>
+            ("vel3", 10, [this](const std_msgs::msg::Float32MultiArray::SharedPtr msg) {
+            for (int i = 0; i < 3; i++){
+                ref[i] = msg->data[i];
+            }
+        });
         timer_ =
             this->create_wall_timer(std::chrono::milliseconds(1), [this]() -> void {
                 CanFrame::MSGT id_pack;
@@ -55,7 +60,7 @@ public:
                 controllers[index].fdb(0) = msg->vel.rad.num;
                 controllers[index].fdb(1) = 0;
 
-                controllers[index].ref(0) = 0;
+                controllers[index].ref(0) = ref[index];
                 controllers[index].ref(1) = 0;
 
                 // LOG_INFO(1, "kp: %f outmax: %f", controllers[index].config.kp, controllers[index].config.outmax);
@@ -73,6 +78,9 @@ private:
     std::array<WheelMotor::SharedPtr, 3> motors;
     std::array<controller::LqrController, 3> controllers;
     std::array<rclcpp::Subscription<MotorFdb>::SharedPtr, 3> subscriptions_;
+    rclcpp::Subscription<std_msgs::msg::Float32MultiArray>::SharedPtr refsubscription;
+    
+    std::array<float, 3> ref;
     rclcpp::TimerBase::SharedPtr timer_;
     
 };
