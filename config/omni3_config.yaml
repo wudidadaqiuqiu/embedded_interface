@@ -1,0 +1,5 @@
+omni3:
+  ros__parameters:
+    can_send: false
+    kp: 1.0
+    kd: 0.0

@@ -16,6 +16,7 @@ class Omni3Node : public rclcpp::Node {
 public:
     Omni3Node() 
         : Node("omni3"), connector("can0"), crn(connector), cs(connector){
+        declare_params();
         create_wheel_motor(1);
         create_wheel_motor(2);
         create_wheel_motor(3);
@@ -32,7 +33,8 @@ public:
                 motors[0]->get_motor().set_send_buf(controllers[0].out, id_pack.data);
                 motors[1]->get_motor().set_send_buf(controllers[1].out, id_pack.data);
                 id_pack.id = motors[2]->get_motor().set_send_buf(controllers[2].out, id_pack.data);
-                cs.send(id_pack);
+                if (can_send)
+                    cs.send(id_pack);
             });
     }
     
@@ -70,6 +72,25 @@ public:
         );
     }
 
+    void declare_params() {
+        this->declare_parameter("can_send", false);
+        this->declare_parameter("kp", 0.0);
+        this->declare_parameter("kd", 0.0);
+
+        can_send = this->get_parameter("can_send").as_bool();
+        kp = this->get_parameter("kp").as_double();
+        RCLCPP_INFO(this->get_logger(), "kp: %f", kp);
+        param_subscriber_ = std::make_shared<rclcpp::ParameterEventHandler>(this);
+        // Set a callback for this node's integer parameter, "an_int_param"
+        auto cb = [this](const rclcpp::Parameter & p) {
+            RCLCPP_INFO(
+            this->get_logger(), "cb: Received an update to parameter \"%s\" of type %s: \"%lf\"",
+            p.get_name().c_str(),
+            p.get_type_name().c_str(),
+            p.as_double());
+        };
+        cb_handle_ = param_subscriber_->add_parameter_callback("kp", cb);
+    }
 private:
     using WheelMotor = MotorNode<MotorType::DJI_3508>;
     Connector<ConnectorType::CAN> connector;
@@ -82,7 +103,10 @@ private:
     
     std::array<float, 3> ref;
     rclcpp::TimerBase::SharedPtr timer_;
-    
+    std::shared_ptr<rclcpp::ParameterEventHandler> param_subscriber_;
+    std::shared_ptr<rclcpp::ParameterCallbackHandle> cb_handle_;
+    bool can_send;
+    double kp;
 };
 
 int main(int argc, char** argv) {
