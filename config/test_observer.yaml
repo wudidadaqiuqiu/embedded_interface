@@ -1,0 +1,5 @@
+/observer_test_node:
+  ros__parameters:
+    _h: 0.001
+    _h0: 0.002
+    _r: 500000.0
