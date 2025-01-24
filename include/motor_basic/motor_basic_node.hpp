@@ -21,7 +21,7 @@ class MotorBasicNode {
 
    public:
 	MotorBasicNode(const Motor<MotorT>::Config& motor_config,
-			  const typename Controller<ControllerTypeT>::ConstructT&
+			  const typename Controller<ControllerTypeT>::template ConstructT<ControllerArgs...>&
 				  controller_config)
 		: motor(motor_config),
 		  controller(controller_config),

@@ -1,6 +1,6 @@
 #include "controller/controller.hpp"
 #include "depend_on_ros12/motor_node/motor_node.hpp"
-#include "depend_on_ros12/controller_node_attached/controller_node.hpp"
+#include "depend_on_ros12/attached_node/controller_node.hpp"
 #include "motor/motor.hpp"
 #include "connector/connector.hpp"
 #include "msg_layer/msg_layer.hpp"
@@ -13,7 +13,7 @@ using connector::ConnectorSendNode;
 using motor_node::MotorNode;
 using motor_node::MotorType;
 
-using controller_node_attached::ControllerNode;
+using attached_node::ControllerNode;
 class Omni3Node : public rclcpp::Node {
 public:
     Omni3Node() 
@@ -34,9 +34,9 @@ public:
             this->create_wall_timer(std::chrono::milliseconds(1), [this]() -> void {
                 CanFrame::MSGT id_pack;
                 id_pack.data.resize(8);
-                motors[0]->get_motor().set_send_buf(cns[0].get_controller().out, id_pack.data);
-                motors[1]->get_motor().set_send_buf(cns[1].get_controller().out, id_pack.data);
-                id_pack.id = motors[2]->get_motor().set_send_buf(cns[2].get_controller().out, id_pack.data);
+                motors[0]->get_motor().set_send_buf(cns[0].get().out, id_pack.data);
+                motors[1]->get_motor().set_send_buf(cns[1].get().out, id_pack.data);
+                id_pack.id = motors[2]->get_motor().set_send_buf(cns[2].get().out, id_pack.data);
                 if (can_send)
                     cs.send(id_pack);
             });
@@ -57,14 +57,14 @@ public:
         subscriptions_[index] = this->create_subscription<MotorFdb>(
             motors[index]->fdb_topic, 10, [this, index](const MotorFdb::SharedPtr msg) {
                 // motor_node_.set_fdb(motor_node_.get_motor().get_fdb().pos_zero_cross.deg.num);
-                cns[index].get_controller().fdb(0) = msg->vel.rad.num;
-                cns[index].get_controller().fdb(1) = 0;
+                cns[index].get().fdb(0) = msg->vel.rad.num;
+                cns[index].get().fdb(1) = 0;
 
-                cns[index].get_controller().ref(0) = ref[index];
-                cns[index].get_controller().ref(1) = 0;
+                cns[index].get().ref(0) = ref[index];
+                cns[index].get().ref(1) = 0;
 
                 // LOG_INFO(1, "kp: %f outmax: %f", controllers[index].config.kp, controllers[index].config.outmax);
-                cns[index].get_controller().update();
+                cns[index].get().update();
                 // LOG_INFO(1, "out: %f", controllers[index].out);
             }
         );

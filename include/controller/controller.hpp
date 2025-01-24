@@ -10,6 +10,7 @@ template <ControllerType ControllerTypeT>
 struct Controller {
     template<typename... _>
     using Type = void;
+    template<typename... _>
     using Config = void;
     using ConstructT = void;
 };
@@ -18,8 +19,10 @@ template <>
 struct Controller<PID> {
     template<typename... _>
     using Type = PidController;
-    using Config = Type<>::Config;
-    using ConstructT = Type<>::Config::ConstructT;
+    template<typename... _>
+    using Config = Type<_...>::Config;
+    template<typename... _>
+    using ConstructT = Type<_...>::Config::ConstructT;
 };
 
 
@@ -27,8 +30,10 @@ template <>
 struct Controller<LQR> {
     template<typename... _>
     using Type = LqrController;
-    using Config = Type<>::Config;
-    using ConstructT =Type<>::Config::ConstructT;
+    template<typename... _>
+    using Config = Type<_...>::Config;
+    template<typename... _>
+    using ConstructT =Type<_...>::Config::ConstructT;
 };
 
 }
