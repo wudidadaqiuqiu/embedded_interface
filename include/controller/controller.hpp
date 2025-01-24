@@ -7,7 +7,12 @@
 namespace controller {
 
 template <ControllerType ControllerTypeT>
-struct Controller {};
+struct Controller {
+    template<typename... _>
+    using Type = void;
+    using Config = void;
+    using ConstructT = void;
+};
 
 template <>
 struct Controller<PID> {

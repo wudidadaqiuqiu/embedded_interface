@@ -50,6 +50,11 @@ add_executable(test_param_dynamic_config
 target_include_directories(test_param_dynamic_config PRIVATE include)
 ament_target_dependencies(test_param_dynamic_config ${connector_dependencies})
 
+add_executable(test_inter_pubsub
+  test/test_inter_pubsub.cpp)
+target_include_directories(test_inter_pubsub PRIVATE include)
+ament_target_dependencies(test_inter_pubsub ${connector_dependencies})
+
 add_executable(omni3
   src/apps/omni3.cpp)
 target_include_directories(omni3 PRIVATE include ${CMAKE_CURRENT_SOURCE_DIR})
@@ -74,6 +79,7 @@ install (TARGETS
   test_tty
   test_mpc
   test_param_dynamic_config
+  test_inter_pubsub
 DESTINATION lib/${PROJECT_NAME})
 
 
