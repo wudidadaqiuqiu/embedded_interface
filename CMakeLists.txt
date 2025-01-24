@@ -65,6 +65,11 @@ add_executable(lib_basic_test
 target_include_directories(lib_basic_test PRIVATE include)
 ament_target_dependencies(lib_basic_test ${connector_dependencies})
 
+add_executable(test_observer
+  test/test_observer.cpp)
+target_include_directories(test_observer PRIVATE include)
+ament_target_dependencies(test_observer ${connector_dependencies})
+
 add_executable(omni3
   src/apps/omni3.cpp)
 target_include_directories(omni3 PRIVATE include ${CMAKE_CURRENT_SOURCE_DIR})
@@ -92,6 +97,7 @@ install (TARGETS
   test_inter_pubsub
   test_param_vector
   lib_basic_test
+  test_observer
 DESTINATION lib/${PROJECT_NAME})
 
 

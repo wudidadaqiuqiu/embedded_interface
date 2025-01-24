@@ -4,7 +4,7 @@
 
 namespace observer {
 using connector_common::real;
-template <unsigned int XNUM, unsigned int UNUM, unsigned int ZNUM>
+template <std::size_t XNUM, std::size_t UNUM, std::size_t ZNUM>
 struct StateSpaceModel {
     Eigen::Matrix<real, XNUM, XNUM> A;
     Eigen::Matrix<real, XNUM, UNUM> B;

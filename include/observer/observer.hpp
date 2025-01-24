@@ -16,12 +16,15 @@ struct Observer {};
 
 template <>
 struct Observer<TD> {
-    using Type = TdObserver;
+    template<std::size_t XNUM, std::size_t UNUM, std::size_t ZNUM>
+    using Type = TdObserver<XNUM, UNUM, ZNUM>;
+    template<std::size_t XNUM, std::size_t UNUM, std::size_t ZNUM>
+    using Config = Type<XNUM, UNUM, ZNUM>::Config;
 };
 
 template <>
 class Observer<KF> {
-    template<size_t XNUM, size_t UNUM, size_t ZNUM>
+    template<std::size_t XNUM, std::size_t UNUM, std::size_t ZNUM>
     using Type = KalmanFilter<XNUM, UNUM, ZNUM>;
 };
 

@@ -3,7 +3,7 @@
 #include "observer/model.hpp"
 #include "common/debug/log.hpp"
 namespace observer {
-template <size_t xnum, size_t unum, size_t znum>
+template <std::size_t xnum, std::size_t unum, std::size_t znum>
 class KalmanFilter {
    public:
     KalmanFilter(const StateSpaceModel<xnum, unum, znum>& model) : model(model) {
