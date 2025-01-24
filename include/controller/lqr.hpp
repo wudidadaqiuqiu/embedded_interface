@@ -5,12 +5,13 @@
 #include "msg_layer/msg_layer.hpp"
 #include "common/debug/log.hpp"
 #include "common/type_def.hpp"
-
+#include "common/macro_def.h"
 namespace controller {
 using connector_common::data_convert;
 using connector_common::real;
 using connector_common::BasicType;
 using connector_common::ConstexprStringMap;
+using connector_common::tuple_get;
 
 class LqrController : public ControllerData<Eigen::Vector<real, 2>, Eigen::Vector<real, 2>, real> {
    public:
@@ -20,23 +21,10 @@ class LqrController : public ControllerData<Eigen::Vector<real, 2>, Eigen::Vecto
         decltype(param.kp.num)& kp = param.kp.num;
         decltype(param.kd.num)& kd = param.kd.num;
         decltype(param.outmax.num)& outmax = param.outmax.num;
-        static constexpr ConstexprStringMap<BasicType::Type, 3>::ConstructT PARAM_MAP_DATA = {{
-            {"kp", BasicType::type<decltype(kp)>()},
-            {"kd", BasicType::type<decltype(kd)>()},
-            {"outmax", BasicType::type<decltype(outmax)>()}
-        }};
-        static constexpr ConstexprStringMap<BasicType::Type, 3> PARAM_MAP = {PARAM_MAP_DATA};
-        template <std::size_t Index>
-        constexpr auto& get() {
-            static_assert(Index < PARAM_MAP_DATA.size(), "Index out of range");
-            if constexpr (Index == 0) {
-                return kp;
-            } else if constexpr (Index == 1) {
-                return kd;
-            } else if constexpr (Index == 2) {
-                return outmax;
-            }
-        }
+
+        DECLARE_PARAM_MAP_DATA(kp, kd, outmax)
+        DECLARE_GET_FUNCTION(kp, kd, outmax)
+
         Config(const ConstructT& param_struct) {
             data_convert(param_struct, param);
         }

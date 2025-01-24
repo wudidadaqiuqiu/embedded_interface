@@ -1,5 +1,6 @@
 #pragma once
 
+#include "common/debug/log.hpp"
 #include "common/type_def.hpp"
 #include "controller/controller.hpp"
 #include "rclcpp/rclcpp.hpp"

@@ -3,6 +3,8 @@
 #include "common/type_def.hpp"
 #include "controller/controller_def.hpp"
 #include "msg_layer/msg_layer.hpp"
+#include "common/type_def.hpp"
+#include "common/macro_def.h"
 namespace controller {
 using connector_common::data_convert;
 using connector_common::BasicType;
@@ -23,32 +25,8 @@ public:
 			data_convert(param_struct, param);
 		}
 
-        static constexpr ConstexprStringMap<BasicType::Type, 6>::ConstructT PARAM_MAP_DATA = {{
-            {"kp", BasicType::type<decltype(kp)>()},
-            {"ki", BasicType::type<decltype(ki)>()},
-            {"kd", BasicType::type<decltype(kd)>()},
-            {"error_max", BasicType::type<decltype(error_max)>()},
-            {"irange", BasicType::type<decltype(irange)>()},
-			{"outmax", BasicType::type<decltype(outmax)>()}
-        }};
-        static constexpr ConstexprStringMap<BasicType::Type, 6> PARAM_MAP = {PARAM_MAP_DATA};
-        template <std::size_t Index>
-        constexpr auto& get() {
-            static_assert(Index < PARAM_MAP_DATA.size(), "Index out of range");
-            if constexpr (Index == 0) {
-                return kp;
-            } else if constexpr (Index == 1) {
-                return ki;
-            } else if constexpr (Index == 2) {
-                return kd;
-            } else if constexpr (Index == 3) {
-                return error_max;
-            } else if constexpr (Index == 4) {
-                return irange;
-            } else if constexpr (Index == 5) {
-                return outmax;
-            }
-        }
+		DECLARE_PARAM_MAP_DATA(kp, ki, kd, error_max, irange, outmax)
+		DECLARE_GET_FUNCTION(kp, ki, kd, error_max, irange, outmax)
         Config() = default;
         // opetator=
         auto& operator=(const Config& config){
