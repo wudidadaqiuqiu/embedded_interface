@@ -1,5 +1,6 @@
 #include "controller/controller.hpp"
 #include "depend_on_ros12/motor_node/motor_node.hpp"
+#include "depend_on_ros12/controller_node_attached/controller_node.hpp"
 #include "motor/motor.hpp"
 #include "connector/connector.hpp"
 #include "msg_layer/msg_layer.hpp"
@@ -12,10 +13,12 @@ using connector::ConnectorSendNode;
 using motor_node::MotorNode;
 using motor_node::MotorType;
 
+using controller_node_attached::ControllerNode;
 class Omni3Node : public rclcpp::Node {
 public:
     Omni3Node() 
-        : Node("omni3"), connector("can0"), crn(connector), cs(connector){
+        : Node("omni3"), connector("can0"), 
+            crn(connector), cs(connector) {
         declare_params();
         create_wheel_motor(1);
         create_wheel_motor(2);
@@ -27,12 +30,13 @@ public:
             }
         });
         timer_ =
+            // send thread
             this->create_wall_timer(std::chrono::milliseconds(1), [this]() -> void {
                 CanFrame::MSGT id_pack;
                 id_pack.data.resize(8);
-                motors[0]->get_motor().set_send_buf(controllers[0].out, id_pack.data);
-                motors[1]->get_motor().set_send_buf(controllers[1].out, id_pack.data);
-                id_pack.id = motors[2]->get_motor().set_send_buf(controllers[2].out, id_pack.data);
+                motors[0]->get_motor().set_send_buf(cns[0].get_controller().out, id_pack.data);
+                motors[1]->get_motor().set_send_buf(cns[1].get_controller().out, id_pack.data);
+                id_pack.id = motors[2]->get_motor().set_send_buf(cns[2].get_controller().out, id_pack.data);
                 if (can_send)
                     cs.send(id_pack);
             });
@@ -50,23 +54,17 @@ public:
         size_t index = id - 1;
         motors[index] = std::make_shared<WheelMotor>(config);
 
-        decltype(controllers[index].config)::ConstructT param = {
-            .kp = 10.0 * 20.0 / 16384.0,
-            .kd = 0.0,
-            .outmax = 10.0,
-        };
-        controllers[index].config = param;
         subscriptions_[index] = this->create_subscription<MotorFdb>(
             motors[index]->fdb_topic, 10, [this, index](const MotorFdb::SharedPtr msg) {
                 // motor_node_.set_fdb(motor_node_.get_motor().get_fdb().pos_zero_cross.deg.num);
-                controllers[index].fdb(0) = msg->vel.rad.num;
-                controllers[index].fdb(1) = 0;
+                cns[index].get_controller().fdb(0) = msg->vel.rad.num;
+                cns[index].get_controller().fdb(1) = 0;
 
-                controllers[index].ref(0) = ref[index];
-                controllers[index].ref(1) = 0;
+                cns[index].get_controller().ref(0) = ref[index];
+                cns[index].get_controller().ref(1) = 0;
 
                 // LOG_INFO(1, "kp: %f outmax: %f", controllers[index].config.kp, controllers[index].config.outmax);
-                controllers[index].update();
+                cns[index].get_controller().update();
                 // LOG_INFO(1, "out: %f", controllers[index].out);
             }
         );
@@ -74,22 +72,10 @@ public:
 
     void declare_params() {
         this->declare_parameter("can_send", false);
-        this->declare_parameter("kp", 0.0);
-        this->declare_parameter("kd", 0.0);
-
         can_send = this->get_parameter("can_send").as_bool();
-        kp = this->get_parameter("kp").as_double();
-        RCLCPP_INFO(this->get_logger(), "kp: %f", kp);
-        param_subscriber_ = std::make_shared<rclcpp::ParameterEventHandler>(this);
-        // Set a callback for this node's integer parameter, "an_int_param"
-        auto cb = [this](const rclcpp::Parameter & p) {
-            RCLCPP_INFO(
-            this->get_logger(), "cb: Received an update to parameter \"%s\" of type %s: \"%lf\"",
-            p.get_name().c_str(),
-            p.get_type_name().c_str(),
-            p.as_double());
-        };
-        cb_handle_ = param_subscriber_->add_parameter_callback("kp", cb);
+        for (auto& cn : cns) {
+            cn.init(std::shared_ptr<rclcpp::Node>(this));
+        }
     }
 private:
     using WheelMotor = MotorNode<MotorType::DJI_3508>;
@@ -97,7 +83,6 @@ private:
     ConnectorSingleRecvNode<ConnectorType::CAN, CanFrame> crn;
     ConnectorSendNode<ConnectorType::CAN, CanFrame> cs;
     std::array<WheelMotor::SharedPtr, 3> motors;
-    std::array<controller::LqrController, 3> controllers;
     std::array<rclcpp::Subscription<MotorFdb>::SharedPtr, 3> subscriptions_;
     rclcpp::Subscription<std_msgs::msg::Float32MultiArray>::SharedPtr refsubscription;
     
@@ -105,13 +90,18 @@ private:
     rclcpp::TimerBase::SharedPtr timer_;
     std::shared_ptr<rclcpp::ParameterEventHandler> param_subscriber_;
     std::shared_ptr<rclcpp::ParameterCallbackHandle> cb_handle_;
+    std::array<ControllerNode<controller::ControllerType::LQR>, 3> cns{
+        ControllerNode<controller::ControllerType::LQR>("lqr_0"), 
+        ControllerNode<controller::ControllerType::LQR>("lqr_1"), 
+        ControllerNode<controller::ControllerType::LQR>("lqr_2")
+    };
     bool can_send;
-    double kp;
 };
 
 int main(int argc, char** argv) {
     rclcpp::init(argc, argv);
-    rclcpp::spin(std::make_shared<Omni3Node>());
+    auto node = std::make_shared<Omni3Node>();
+    rclcpp::spin(node);
     rclcpp::shutdown();
     return 0;
 }
