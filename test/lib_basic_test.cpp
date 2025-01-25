@@ -1,6 +1,15 @@
 #include "common/type_def.hpp"
+#include "observer/observer.hpp"
+#include "observer/kf_observer.hpp"
 
 using connector_common::BasicType;
+
+using observer::ObserverType;
+using observer::Observer;
+
+// class TestObserver : public  {
+    
+// }
 
 inline constexpr void test_types() {
     static_assert(BasicType::type<int>() == BasicType::Type::INT, "INT test failed");

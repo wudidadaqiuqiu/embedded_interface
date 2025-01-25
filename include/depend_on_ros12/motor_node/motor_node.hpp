@@ -45,8 +45,7 @@ MotorNode<MotorTypeT>::MotorNode(const Config& config)
 		timer_ =
 			this->create_wall_timer(std::chrono::seconds(1), [this]() -> void {
 				// 打印 motor fps
-				std::cout << "motor fps: " << motor_.get_framerate()
-						  << std::endl;
+				LOG_INFO(1,"motor fps: %lf", motor_.get_framerate());
 			});
 	}
 }

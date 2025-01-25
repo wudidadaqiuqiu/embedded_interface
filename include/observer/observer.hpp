@@ -24,8 +24,10 @@ struct Observer<TD> {
 
 template <>
 class Observer<KF> {
-    template<std::size_t XNUM, std::size_t UNUM, std::size_t ZNUM>
-    using Type = KalmanFilter<XNUM, UNUM, ZNUM>;
+    template<typename StateSpaceModelT>
+    using Type = KalmanFilter<StateSpaceModelT::XNUM, StateSpaceModelT::UNUM, StateSpaceModelT::ZNUM>;
+    template<typename StateSpaceModelT>
+    using Config = Type<StateSpaceModelT>::Config;
 };
 
 }
