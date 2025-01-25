@@ -74,7 +74,7 @@ public:
         this->declare_parameter("can_send", false);
         can_send = this->get_parameter("can_send").as_bool();
         for (auto& cn : cns) {
-            cn.init(std::shared_ptr<rclcpp::Node>(this));
+            cn.init(*this);
         }
     }
 private:

@@ -23,7 +23,7 @@ class ObserverTestNode : public rclcpp::Node {
 public:
     ObserverTestNode() 
         : Node("observer_test_node"), kf(config) {
-        td_node.init(std::shared_ptr<rclcpp::Node>(this));
+        td_node.init(*this);
         pub_alpha = this->create_publisher<Float32MultiArray>("/observer/motor_alpha", 10);
         pub_power = this->create_publisher<Float32>("/observer/power", 10);
         omega_sub = this->create_subscription<Float32>(
@@ -76,6 +76,8 @@ int main(int argc, char** argv) {
 
     auto node = std::make_shared<ObserverTestNode>();
     rclcpp::spin(node);
+    LOG_INFO(1, "Shutting down");
     rclcpp::shutdown();
+    LOG_INFO(1, "Shutdown complete");
     return 0;
 }

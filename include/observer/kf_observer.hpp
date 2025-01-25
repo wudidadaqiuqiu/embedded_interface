@@ -4,7 +4,9 @@
 #include "observer/model.hpp"
 #include "common/debug/log.hpp"
 
+#ifndef KALMAN_FILTER_DEBUG
 #define KALMAN_FILTER_DEBUG (1)
+#endif
 namespace observer {
 
 template <typename T>
@@ -71,6 +73,9 @@ class KalmanFilter {
         LOG_DEBUG(KALMAN_FILTER_DEBUG, "Kalman filter initialized with model: \nA:\n%s\nB:\n%s\nH:\n%s",
             to_string(config.model.A).c_str(), to_string(config.model.B).c_str(), to_string(config.model.H).c_str());
         
+    }
+    ~KalmanFilter() {
+        LOG_DEBUG(KALMAN_FILTER_DEBUG, "Kalman filter destroyed");
     }
     void update(const UpdateData& data) {
         for (std::size_t i = 0; i < ZNm; ++i) {

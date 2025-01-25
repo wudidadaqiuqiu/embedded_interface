@@ -18,7 +18,7 @@ protected:
     using ObjT = typename ObjPackT::template Type<Args...>;
     const std::string name_;
     ObjT obj_;
-    rclcpp::Node::SharedPtr node_;
+    rclcpp::Node* node_;
     	std::vector<std::shared_ptr<rclcpp::ParameterEventHandler>> param_subscribers;
     std::vector<std::shared_ptr<rclcpp::ParameterCallbackHandle>> cb_handles;
 public:
@@ -49,7 +49,7 @@ public:
 		static void func(THIS* const node_ptr) {
 			const auto& pair = ObjPackT::template Config<Args...>::PARAM_MAP_DATA[Index];
 			const std::string param_name = node_ptr->name_ + "_" + pair.first;
-			auto param_subscriber = std::make_shared<rclcpp::ParameterEventHandler>(node_ptr->node_.get());
+			auto param_subscriber = std::make_shared<rclcpp::ParameterEventHandler>(node_ptr->node_);
 			auto cb = [node_ptr, pair](const rclcpp::Parameter & p) {
 				auto value = p.get_value<BasicType::TypeT<pair.second>>(); // 获取值
 				node_ptr->obj_.config.template get<Index>() = value;
@@ -70,8 +70,8 @@ public:
 		}
 	};
 
-    void init (const rclcpp::Node::SharedPtr& node) {
-		node_ = node;
+    void init (rclcpp::Node& node) {
+		node_ = &node;
 		for_each_unfolded<DeclareAllParameters, ObjPackT::template Config<Args...>::PARAM_MAP_DATA.size()>(this);
 		for_each_unfolded<SubscribeAllParameters, ObjPackT::template Config<Args...>::PARAM_MAP_DATA.size()>(this);
 	}
