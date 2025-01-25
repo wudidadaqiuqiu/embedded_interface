@@ -17,13 +17,16 @@ using attached_node::AttachedNode;
 template <ObserverType ObserverTypeT, typename... ObserverArgs>
 using ObserverNode = AttachedNode<Observer<ObserverTypeT>, ObserverArgs...>;
 
-KalmanFilter<1, 0, 1>::Config config;
+KalmanFilter<1, 0, 1>::Config kfconfig;
 
 class ObserverTestNode : public rclcpp::Node {
 public:
     ObserverTestNode() 
-        : Node("observer_test_node"), kf(config) {
+        : Node("observer_test_node")
+        , kf_node(kfconfig)
+        {
         td_node.init(*this);
+        kf_node.init(*this);
         pub_alpha = this->create_publisher<Float32MultiArray>("/observer/motor_alpha", 10);
         pub_power = this->create_publisher<Float32>("/observer/power", 10);
         omega_sub = this->create_subscription<Float32>(
@@ -35,13 +38,13 @@ public:
         });
         power_real_sub = this->create_subscription<Float32>(
             "power_real", 10, [this](const Float32::SharedPtr msg) {
-            decltype(kf)::UpdateData update_data = {
+            ObserverKf::UpdateData update_data = {
                 .z = {msg.get()->data},
             };
-            kf.predict(decltype(kf)::PredictData{});
-            kf.update(update_data);
+            kf_node.get().predict(ObserverKf::PredictData{});
+            kf_node.get().update(update_data);
             
-            msg_power.data = state.x.front();
+            msg_power.data = kf_node.get().get_state().x.front();
             pub_power->publish(msg_power);
         });
         timer_ =
@@ -52,8 +55,8 @@ public:
     
 private:
     ObserverNode<ObserverType::TD> td_node;
-    KalmanFilter<1, 0, 1> kf;
-    const decltype(kf)::StateData& state = kf.get_state();
+    ObserverNode<ObserverType::KF, decltype(kfconfig.model)> kf_node;
+    using ObserverKf = std::remove_reference_t<decltype(kf_node.get())>;
     rclcpp::Subscription<Float32>::SharedPtr omega_sub;
     rclcpp::Subscription<Float32>::SharedPtr power_real_sub;
 
@@ -67,13 +70,10 @@ private:
 
 int main(int argc, char** argv) {
     rclcpp::init(argc, argv);
-    config.model.A << 1;
+    kfconfig.model.A << 1;
     // config.model.B << 0;
-    config.model.H << 1;
-    config.P << 1;
-    config.Q << 0.1;
-    config.R << 1;
-
+    kfconfig.model.H << 1;
+    kfconfig.P << 1;
     auto node = std::make_shared<ObserverTestNode>();
     rclcpp::spin(node);
     LOG_INFO(1, "Shutting down");

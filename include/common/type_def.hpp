@@ -2,6 +2,7 @@
 #include <array>
 #include <vector>
 #include <tuple>
+#include <sstream>
 #include <cstring>
 #include <utility> // for std::pair
 #include <stdexcept> // for std::out_of_range
@@ -122,5 +123,21 @@ inline constexpr auto& tuple_get(Args&... args) {
         return tuple_get<Index, Count+1>(args...);
     }
 }
+
+template <typename T>
+inline auto to_string(const T& mat) -> std::string{
+    std::stringstream ss;
+    if constexpr (is_std_vector<T>::value || is_std_array<T>::value) {
+        ss << "[";
+        for (const auto& item : mat) {
+            ss << to_string(item) << ", ";
+        }
+        ss << "]";
+    } else {
+        ss << mat;
+    }
+    return ss.str();
+}
+
 
 }  // namespace connector_common

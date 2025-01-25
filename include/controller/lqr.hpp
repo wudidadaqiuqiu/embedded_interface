@@ -23,7 +23,7 @@ class LqrController : public ControllerData<Eigen::Vector<real, 2>, Eigen::Vecto
         decltype(param.outmax.num)& outmax = param.outmax.num;
 
         DECLARE_PARAM_MAP_DATA(kp, kd, outmax)
-        DECLARE_GET_FUNCTION(kp, kd, outmax)
+        DECLARE_SET_FUNCTION(kp, kd, outmax)
 
         Config(const ConstructT& param_struct) {
             data_convert(param_struct, param);

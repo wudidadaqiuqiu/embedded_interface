@@ -26,7 +26,7 @@ public:
 		}
 
 		DECLARE_PARAM_MAP_DATA(kp, ki, kd, error_max, irange, outmax)
-		DECLARE_GET_FUNCTION(kp, ki, kd, error_max, irange, outmax)
+		DECLARE_SET_FUNCTION(kp, ki, kd, error_max, irange, outmax)
         Config() = default;
         // opetator=
         auto& operator=(const Config& config){

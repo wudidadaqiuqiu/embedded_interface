@@ -18,8 +18,8 @@ struct TdObserver {
         real h;
         real h0;
         DECLARE_PARAM_MAP_DATA(r, h, h0)
-        DECLARE_GET_FUNCTION(r, h, h0)
-        Config() = default; 
+        DECLARE_SET_FUNCTION(r, h, h0)
+        Config() = default;
     } config;
     struct UpdateData {
         real ref;

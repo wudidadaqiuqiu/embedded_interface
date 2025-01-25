@@ -12,7 +12,12 @@ enum ObserverType {
 };
 
 template <ObserverType ObserverTypeT>
-struct Observer {};
+struct Observer {
+    template<typename... Args>
+    using Type = void;
+    template<typename... Args>
+    using Config = void;
+};
 
 template <>
 struct Observer<TD> {
@@ -23,7 +28,7 @@ struct Observer<TD> {
 };
 
 template <>
-class Observer<KF> {
+struct Observer<KF> {
     template<typename StateSpaceModelT>
     using Type = KalmanFilter<StateSpaceModelT::XNUM, StateSpaceModelT::UNUM, StateSpaceModelT::ZNUM>;
     template<typename StateSpaceModelT>

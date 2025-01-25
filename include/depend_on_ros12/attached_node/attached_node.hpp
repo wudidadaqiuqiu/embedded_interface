@@ -22,7 +22,8 @@ protected:
     	std::vector<std::shared_ptr<rclcpp::ParameterEventHandler>> param_subscribers;
     std::vector<std::shared_ptr<rclcpp::ParameterCallbackHandle>> cb_handles;
 public:
-    AttachedNode(const std::string& name="") : name_(name) {}
+	AttachedNode(const std::string& name="") : name_(name) {}
+    AttachedNode(const ObjPackT::template Config<Args...>& config, const std::string& name="") : name_(name), obj_(config) {}
     using THIS = AttachedNode<ObjPackT, Args...>;
     struct DeclareAllParameters {
 		template<std::size_t Index>
@@ -38,9 +39,9 @@ public:
 			node_ptr->node_->declare_parameter(param_name, BasicType::TypeT<pair.second>{});
 			
 			auto value = node_ptr->node_->get_parameter(param_name).template get_value<BasicType::TypeT<pair.second>>(); // 获取值
-			node_ptr->obj_.config.template get<Index>() = value;
+			node_ptr->obj_.config.template set<Index>(value);
 			LOG_INFO(1, "AttachedNode %s Declared parameter: %s and set to \"%s\"", 
-				node_ptr->name_.c_str(), param_name.c_str(), std::to_string(value).c_str());
+				node_ptr->name_.c_str(), param_name.c_str(), connector_common::to_string(value).c_str());
 		}
 	};
 
@@ -52,8 +53,8 @@ public:
 			auto param_subscriber = std::make_shared<rclcpp::ParameterEventHandler>(node_ptr->node_);
 			auto cb = [node_ptr, pair](const rclcpp::Parameter & p) {
 				auto value = p.get_value<BasicType::TypeT<pair.second>>(); // 获取值
-				node_ptr->obj_.config.template get<Index>() = value;
-				std::string value_str = std::to_string(value); // 显式转换为字符串（根据类型调整转换逻辑）
+				node_ptr->obj_.config.template set<Index>(value);
+				std::string value_str = connector_common::to_string(value); // 显式转换为字符串（根据类型调整转换逻辑）
 
 				RCLCPP_INFO(
 					node_ptr->node_->get_logger(), 

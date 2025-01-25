@@ -47,10 +47,10 @@ static constexpr ConstexprStringMap<BasicType::Type, FOR_EACH_NARG(__VA_ARGS__)>
     FOR_EACH(PAIR, __VA_ARGS__) \
 }};
 
-// 定义获取函数的宏
-#define DECLARE_GET_FUNCTION(...) \
+#define DECLARE_SET_FUNCTION(...) \
 template <std::size_t Index> \
-constexpr auto& get() { \
-    return tuple_get<Index>(__VA_ARGS__); \
+constexpr void set(const auto& value) { \
+    auto& v = tuple_get<Index>(__VA_ARGS__); \
+    v = value; \
 }
 
