@@ -10,7 +10,7 @@ using connector_common::BasicType;
 using connector_common::for_each_unfolded;
 
 template <typename ObjPackT, typename... Args>
-#if __cplusplus == 202002L
+#if __cplusplus >= 202002L
 requires connector_common::IsPackOfObjects<ObjPackT, Args...>
 #endif
 class AttachedNode { 

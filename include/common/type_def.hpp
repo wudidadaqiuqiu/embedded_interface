@@ -1,27 +1,12 @@
 #pragma once
 #include <array>
 #include <vector>
-#include <tuple>
-#include <sstream>
 #include <cstring>
 #include <utility> // for std::pair
 #include <stdexcept> // for std::out_of_range
 
+#include "common/function_def.hpp"
 namespace connector_common {
-
-template <typename T>
-struct is_std_array : std::false_type {};
-
-// Specialization for std::array
-template <typename T, std::size_t N>
-struct is_std_array<std::array<T, N>> : std::true_type {};
-
-
-template <typename T>
-struct is_std_vector : std::false_type {};
-
-template <typename T>
-struct is_std_vector<std::vector<T>> : std::true_type {};
 
 class BasicType {
    public:
@@ -100,44 +85,5 @@ public:
 private:
     const std::array<std::pair<Key, Value>, N> data_;
 };
-
-template <typename T, typename U, std::size_t... Indices>
-void for_each_unfolded(U u, std::index_sequence<Indices...>) {
-    (T::template func<Indices>(u), ...); // Fold expression
-}
-
-template<typename T, std::size_t Nm, typename U>
-void for_each_unfolded(U u) {
-    for_each_unfolded<T, U>(u, std::make_index_sequence<Nm>{});
-}
-
-template <std::size_t Index, std::size_t Count = 0, typename... Args>
-// constexpr 代表编译时获取，auto& 代表获取引用，且不所谓类型 
-inline constexpr auto& tuple_get(Args&... args) {
-    static_assert(Index < sizeof...(args), "Index out of range");
-    if constexpr (Index == Count) {
-        // 绑定引用用tie 不用std::make_tuple
-        return std::get<Index>(std::tie(args...));
-    } else {
-        // 模板递归实现if else if，无法通过index_sequence实现
-        return tuple_get<Index, Count+1>(args...);
-    }
-}
-
-template <typename T>
-inline auto to_string(const T& mat) -> std::string{
-    std::stringstream ss;
-    if constexpr (is_std_vector<T>::value || is_std_array<T>::value) {
-        ss << "[";
-        for (const auto& item : mat) {
-            ss << to_string(item) << ", ";
-        }
-        ss << "]";
-    } else {
-        ss << mat;
-    }
-    return ss.str();
-}
-
 
 }  // namespace connector_common
