@@ -1,4 +1,6 @@
 #pragma once
+
+// https://stackoverflow.com/questions/1872220/is-it-possible-to-iterate-over-arguments-in-variadic-macros
 #define CONCATENATE(arg1, arg2)   CONCATENATE1(arg1, arg2)
 #define CONCATENATE1(arg1, arg2)  CONCATENATE2(arg1, arg2)
 #define CONCATENATE2(arg1, arg2)  arg1##arg2
@@ -50,7 +52,7 @@ static constexpr ConstexprStringMap<BasicType::Type, FOR_EACH_NARG(__VA_ARGS__)>
 #define DECLARE_SET_FUNCTION(...) \
 template <std::size_t Index> \
 constexpr void set(const auto& value) { \
-    auto& v = tuple_get<Index>(__VA_ARGS__); \
+    auto& v = tie_get<Index>(__VA_ARGS__); \
     v = value; \
 }
 

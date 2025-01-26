@@ -11,7 +11,7 @@ using connector_common::data_convert;
 using connector_common::real;
 using connector_common::BasicType;
 using connector_common::ConstexprStringMap;
-using connector_common::tuple_get;
+using connector_common::tie_get;
 
 class LqrController : public ControllerData<Eigen::Vector<real, 2>, Eigen::Vector<real, 2>, real> {
    public:

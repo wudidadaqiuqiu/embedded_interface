@@ -4,9 +4,10 @@
 
 #include <Eigen/Dense>
 #include "common/common_macro_dependencies.hpp"
-#include "observer/model.hpp"
-
 #include "common/debug/log.hpp"
+
+#include "observer/function_def.hpp"
+#include "observer/model.hpp"
 
 #ifndef KALMAN_FILTER_DEBUG
 #define KALMAN_FILTER_DEBUG (1)
@@ -43,10 +44,17 @@ class KalmanFilter {
             r_mat.resize(R.SizeAtCompileTime);
         }
         DECLARE_PARAM_MAP_DATA(q_mat, r_mat)
+
+        template<std::size_t Index, std::size_t Count=0>
+        constexpr auto get_pair(const auto& prefix) {
+            return ParamsInterface(model, q_mat, r_mat, "model", "q_mat", "r_mat").
+                template index_params<Index>(prefix);
+        }
+
         template <std::size_t Index>
         void set(const auto& value) {
             // LOG_DEBUG(KALMAN_FILTER_DEBUG, "set q and r value: %s", std::to_string(value).c_str());
-            auto& v = tuple_get<Index>(q_mat, r_mat);
+            auto& v = tie_get<Index>(q_mat, r_mat);
             if (v.size() != value.size()) {
                 // 逆天 string加法 std::format依赖太多了
                 throw std::runtime_error("Size of q_mat " + std::to_string(q_mat.size()) + 

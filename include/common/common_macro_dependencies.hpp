@@ -6,4 +6,4 @@
 
 using connector_common::BasicType;
 using connector_common::ConstexprStringMap;
-using connector_common::tuple_get;
+using connector_common::tie_get;
