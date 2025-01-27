@@ -53,40 +53,10 @@ struct ParamDeclarationGen {
 template <typename... Args>
 struct ParamDeclarationGen<std::tuple<Args...>> : public ParamDeclarationGen<Args...> {};
 
-
-template <typename... Args>
-struct ParamsInterface {
-    std::tuple<Args&...> refs;
-    constexpr ParamsInterface(Args&... args) : refs(std::tie(args...)) {}
-    using ParamDeclare = ParamDeclarationGen<typename get_lower<sizeof...(Args) / 2, std::tuple<Args...>>::type>;
-    static constexpr std::size_t PARAMS_COUNT =  count_elements_t<typename ParamDeclare::Params>::value;
-    template <std::size_t Index>
-    // 意味着函数的结果能在编译时获得，结果本身无所谓编译时还是运行时
-    constexpr auto get_ele() -> auto& {
-        return  std::get<Index>(refs);
-    }
-
-    template <std::size_t Index>
-    constexpr auto get_names_tuple() -> auto const& {
-        return std::get<Index + sizeof...(Args) / 2>(refs);
-        // (std::tie("model", "q_mat", "r_mat"));
-    }
-
-    template<std::size_t Index>
-    constexpr auto index_params(const auto& prefix) {
-        static_assert(Index < PARAMS_COUNT, "Index out of range");
-        return for_each_conditional_return<Index, 
-            PARAMS_COUNT, 
-            ParamDeclare::template SpecializationInRange, 
-            ParamDeclare::template SpecializationPairReturn>(prefix, *this);
-    }
-};
-
-
 template <std::size_t Nm, typename T>
 struct PairHint {
     std::pair<std::array<char, Nm>, std::reference_wrapper<T>> pair_;
-    PairHint(std::pair<std::array<char, Nm>, std::reference_wrapper<T>> pair) : pair_(pair) {}
+    constexpr PairHint(std::pair<std::array<char, Nm>, std::reference_wrapper<T>> pair) : pair_(pair) {}
 
     // 不写成constexpr了，太麻烦
     auto equal_first_namespace(const std::string_view& name_arr) -> bool {
@@ -115,5 +85,42 @@ struct PairHint {
 
     using ValueT = BasicType::TypeT<BasicType::type<T>()>;
 };
+
+
+template <typename... Args>
+struct ParamsInterface {
+    std::tuple<Args&...> refs;
+    constexpr ParamsInterface(Args&... args) : refs(std::tie(args...)) {}
+    using ParamDeclare = ParamDeclarationGen<typename get_lower<sizeof...(Args) / 2, std::tuple<Args...>>::type>;
+    static constexpr std::size_t PARAMS_COUNT =  count_elements_t<typename ParamDeclare::Params>::value;
+    template <std::size_t Index>
+    // 意味着函数的结果能在编译时获得，结果本身无所谓编译时还是运行时
+    constexpr auto get_ele() -> auto& {
+        return  std::get<Index>(refs);
+    }
+
+    template <std::size_t Index>
+    constexpr auto get_names_tuple() -> auto const& {
+        return std::get<Index + sizeof...(Args) / 2>(refs);
+        // (std::tie("model", "q_mat", "r_mat"));
+    }
+
+    template<std::size_t Index>
+    constexpr auto index_params(const auto& prefix) {
+        static_assert(Index < PARAMS_COUNT, "Index out of range");
+        return for_each_conditional_return<Index, 
+            PARAMS_COUNT, 
+            ParamDeclare::template SpecializationInRange, 
+            ParamDeclare::template SpecializationPairReturn>(prefix, *this);
+    }
+
+    template<std::size_t Index>
+    constexpr auto index_param_pair() {
+        return PairHint(index_params<Index>("_"));
+    }    
+};
+
+
+
 
 }

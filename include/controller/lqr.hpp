@@ -6,12 +6,13 @@
 #include "common/debug/log.hpp"
 #include "common/type_def.hpp"
 #include "common/macro_def.h"
+
+#include "common/param_interface.hpp"
+
 namespace controller {
 using connector_common::data_convert;
 using connector_common::real;
-using connector_common::BasicType;
-using connector_common::ConstexprStringMap;
-using connector_common::tie_get;
+using connector_common::ParamsInterface;
 
 class LqrController : public ControllerData<Eigen::Vector<real, 2>, Eigen::Vector<real, 2>, real> {
    public:
@@ -21,9 +22,19 @@ class LqrController : public ControllerData<Eigen::Vector<real, 2>, Eigen::Vecto
         decltype(param.kp.num)& kp = param.kp.num;
         decltype(param.kd.num)& kd = param.kd.num;
         decltype(param.outmax.num)& outmax = param.outmax.num;
+        constexpr auto param_interface() {
+            return ParamsInterface(kp, kd, outmax, "kp", "kd", "outmax");
+        }
 
-        DECLARE_PARAM_MAP_DATA(kp, kd, outmax)
-        DECLARE_SET_FUNCTION(kp, kd, outmax)
+        template<std::size_t Index, std::size_t N>
+        constexpr auto get_pair(const std::array<char, N>& prefix) {
+            return param_interface().template index_params<Index>(prefix);
+        }
+        template <std ::size_t Index>
+        constexpr void set(const auto& value) {
+            auto& v = param_interface().template get_ele<Index>();
+            v = value;
+        }
 
         Config(const ConstructT& param_struct) {
             data_convert(param_struct, param);

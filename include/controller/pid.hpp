@@ -1,14 +1,11 @@
 #pragma once
-
-#include "common/type_def.hpp"
 #include "controller/controller_def.hpp"
 #include "msg_layer/msg_layer.hpp"
-#include "common/type_def.hpp"
 #include "common/macro_def.h"
+#include "common/param_interface.hpp"
 namespace controller {
 using connector_common::data_convert;
-using connector_common::BasicType;
-using connector_common::ConstexprStringMap;
+using connector_common::ParamsInterface;
 
 class PidController : public ControllerData<real, real, real> {
 public:
@@ -25,8 +22,21 @@ public:
 			data_convert(param_struct, param);
 		}
 
-		DECLARE_PARAM_MAP_DATA(kp, ki, kd, error_max, irange, outmax)
-		DECLARE_SET_FUNCTION(kp, ki, kd, error_max, irange, outmax)
+		constexpr auto param_interface() {
+            return ParamsInterface(kp, ki, kd, error_max, irange, outmax, "kp", "ki", "kd", "error_max", "irange", "outmax");
+        }
+
+        template<std::size_t Index, std::size_t N>
+        constexpr auto get_pair(const std::array<char, N>& prefix) {
+            return param_interface().template index_params<Index>(prefix);
+        }
+
+		template <std ::size_t Index>
+        constexpr void set(const auto& value) {
+            auto& v = param_interface().template get_ele<Index>();
+            v = value;
+        }
+
         Config() = default;
         // opetator=
         auto& operator=(const Config& config){

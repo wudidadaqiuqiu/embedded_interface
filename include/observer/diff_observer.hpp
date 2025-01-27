@@ -1,12 +1,10 @@
 #pragma once
 #include "common/common_math.hpp"
-#include "common/data_convert.hpp"
-#include "common/type_def.hpp"
 #include "common/macro_def.h"
+#include "common/param_interface.hpp"
 namespace observer {
 using connector_common::real;
-using connector_common::ConstexprStringMap;
-using connector_common::BasicType;
+using connector_common::ParamsInterface;
 
 template <std::size_t XNUM, std::size_t UNUM, std::size_t ZNUM>
 struct TdObserver {
@@ -17,8 +15,21 @@ struct TdObserver {
         real r;
         real h;
         real h0;
-        DECLARE_PARAM_MAP_DATA(r, h, h0)
-        DECLARE_SET_FUNCTION(r, h, h0)
+        constexpr auto param_interface() {
+            return ParamsInterface(r, h, h0, "r", "h", "h0");
+        }
+
+        template<std::size_t Index, std::size_t N>
+        constexpr auto get_pair(const std::array<char, N>& prefix) {
+            return param_interface().template index_params<Index>(prefix);
+        }
+        
+        template <std ::size_t Index>
+        constexpr void set(const auto& value) {
+            auto& v = param_interface().template get_ele<Index>();
+            v = value;
+        }
+
         Config() = default;
     } config;
     struct UpdateData {

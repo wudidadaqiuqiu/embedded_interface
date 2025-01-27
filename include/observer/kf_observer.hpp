@@ -1,12 +1,9 @@
 #pragma once
-#include <algorithm>  // std::transform
-#include <iterator>   // std::back_inserter
-
 #include <Eigen/Dense>
 #include "common/common_macro_dependencies.hpp"
 #include "common/debug/log.hpp"
 
-#include "observer/function_def.hpp"
+#include "common/param_interface.hpp"
 #include "observer/model.hpp"
 
 #ifndef KALMAN_FILTER_DEBUG
@@ -14,6 +11,11 @@
 #endif
 namespace observer {
 using connector_common::to_string;
+using connector_common::split;
+using connector_common::concat;
+using connector_common::in_closed_range;
+using connector_common::ParamsInterface;
+using connector_common::PairHint;
 
 template <std::size_t XNm, std::size_t UNm, std::size_t ZNm>
 class KalmanFilter {
@@ -45,16 +47,37 @@ class KalmanFilter {
         }
         DECLARE_PARAM_MAP_DATA(q_mat, r_mat)
 
-        template<std::size_t Index, std::size_t Count=0>
-        constexpr auto get_pair(const auto& prefix) {
-            return ParamsInterface(model, q_mat, r_mat, "model", "q_mat", "r_mat").
-                template index_params<Index>(prefix);
+        constexpr auto param_interface() {
+            return ParamsInterface(model, q_mat, r_mat, "model", "q_mat", "r_mat");
+        }
+
+        template<std::size_t Index, std::size_t N>
+        constexpr auto get_pair(const std::array<char, N>& prefix) {
+            return param_interface().template index_params<Index>(prefix);
         }
 
         template <std::size_t Index>
         void set(const auto& value) {
-            // LOG_DEBUG(KALMAN_FILTER_DEBUG, "set q and r value: %s", std::to_string(value).c_str());
-            auto& v = tie_get<Index>(q_mat, r_mat);
+            PairHint pairhint(get_pair<Index>(concat("_")));
+            static_assert(BasicType::type<float&>() == BasicType::type<const double&>(), "type mismatch");
+            static_assert(BasicType::type<decltype(value)>() == BasicType::type<decltype(pairhint.get_value())>(), "type mismatch");
+            if constexpr (BasicType::type<decltype(value)>() != BasicType::Type::FLOAT) {
+                set<Index, true>(value);
+                return;
+            } else {
+                set<Index, int>(value);
+            }
+            if (pairhint.equal_first_namespace("model")) {
+                LOG_DEBUG(KALMAN_FILTER_DEBUG, "model: %s\\0, %ld", to_string(pairhint.pair_.first).c_str(), Index);
+                // param_interface().template index_param_pair<Index>().get_value() = value;
+                
+                return;
+            }
+        }
+
+        template <std::size_t Index, bool B>
+        void set(const auto& value) {
+            auto& v = param_interface().template index_param_pair<Index>().get_value();
             if (v.size() != value.size()) {
                 // 逆天 string加法 std::format依赖太多了
                 throw std::runtime_error("Size of q_mat " + std::to_string(q_mat.size()) + 
@@ -67,7 +90,7 @@ class KalmanFilter {
                 [](decltype(*value.begin()) val) { return static_cast<real>(val); });
             // std::lock_guard<std::mutex> lock(mutex);
             LOG_DEBUG(KALMAN_FILTER_DEBUG, "set q and r value: %s", connector_common::to_string(value).c_str());
-            LOG_DEBUG(KALMAN_FILTER_DEBUG, "be setted: %s", connector_common::to_string(v).c_str());
+            LOG_DEBUG(KALMAN_FILTER_DEBUG, "be setted: %s", to_string(v).c_str());
             static_assert(Q.SizeAtCompileTime == Q.RowsAtCompileTime * Q.ColsAtCompileTime, "assert test failed");
             for (std::size_t i = 0; i < Q.SizeAtCompileTime; ++i) {
                 Q.coeffRef(i) = q_mat[i];
@@ -77,6 +100,13 @@ class KalmanFilter {
             }
             LOG_DEBUG(KALMAN_FILTER_DEBUG, "Kalman filter config updated: \nQ:\n%s\nR:\n%s", 
                 to_string(Q).c_str(), to_string(R).c_str());
+        }
+
+        template <std::size_t Index, typename I>
+        void set(const auto& value) {
+            auto& v = param_interface().template index_param_pair<Index>().get_value();
+            v = value;
+            LOG_DEBUG(KALMAN_FILTER_DEBUG, "model: %lf, %lf", model.config.temp1, model.config.temp2); 
         }
 	} config;
     struct UpdateData {

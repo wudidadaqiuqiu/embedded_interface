@@ -22,7 +22,7 @@ class BasicType {
 
     template <typename T>
     static constexpr Type type() {
-        using Tremovecvr = std::remove_reference_t<std::remove_cv_t<T>>;
+        using Tremovecvr = std::remove_cv_t<std::remove_reference_t<std::remove_cv_t<T>>>;
         if constexpr (std::is_same_v<Tremovecvr, int>) {
             return Type::INT;
         } else if constexpr (std::is_same_v<Tremovecvr, float> || std::is_same_v<Tremovecvr, double>) {

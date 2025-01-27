@@ -1,7 +1,13 @@
 /observer_test_node:
   ros__parameters:
-    _h: 0.001
-    _h0: 0.002
-    _r: 500000.0
-    _q_mat: [1.0]
-    _r_mat: [1.0]
+    kf:
+      model:
+        temp1: 1.0
+        temp2: 2.0
+      q_mat: [1.0]
+      r_mat: [1.0]
+    td:
+      h: 0.001
+      h0: 0.002
+      r: 500000.0
+    use_sim_time: false

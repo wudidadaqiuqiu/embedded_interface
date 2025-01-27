@@ -1,10 +1,12 @@
 #include "controller/controller.hpp"
 #include "depend_on_ros12/motor_node/motor_node.hpp"
-#include "depend_on_ros12/attached_node/controller_node.hpp"
+#include "depend_on_ros12/attached_node/attached_node.hpp"
 #include "motor/motor.hpp"
 #include "connector/connector.hpp"
 #include "msg_layer/msg_layer.hpp"
 #include "std_msgs/msg/float32_multi_array.hpp"
+using connector_common::concat;
+
 using connector::Connector;
 using connector::ConnectorType;
 using connector::ConnectorSingleRecvNode;
@@ -12,8 +14,12 @@ using connector::ConnectorSendNode;
 
 using motor_node::MotorNode;
 using motor_node::MotorType;
+using controller::Controller;
+using controller::ControllerType;
+using attached_node::AttachedNode;
+template <std::size_t M, ControllerType ControllerTypeT, typename... ControllerArgs>
+using ControllerNode = AttachedNode<M, Controller<ControllerTypeT>, ControllerArgs...>;
 
-using attached_node::ControllerNode;
 class Omni3Node : public rclcpp::Node {
 public:
     Omni3Node() 
@@ -90,10 +96,10 @@ private:
     rclcpp::TimerBase::SharedPtr timer_;
     std::shared_ptr<rclcpp::ParameterEventHandler> param_subscriber_;
     std::shared_ptr<rclcpp::ParameterCallbackHandle> cb_handle_;
-    std::array<ControllerNode<controller::ControllerType::LQR>, 3> cns{
-        ControllerNode<controller::ControllerType::LQR>("lqr_0"), 
-        ControllerNode<controller::ControllerType::LQR>("lqr_1"), 
-        ControllerNode<controller::ControllerType::LQR>("lqr_2")
+    std::array<ControllerNode<6, controller::ControllerType::LQR>, 3> cns{
+        ControllerNode<6, controller::ControllerType::LQR>(concat("lqr_0")), 
+        ControllerNode<6, controller::ControllerType::LQR>(concat("lqr_1")), 
+        ControllerNode<6, controller::ControllerType::LQR>(concat("lqr_2"))
     };
     bool can_send;
 };

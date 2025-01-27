@@ -1,13 +1,10 @@
 #pragma once
 #include <Eigen/Dense>
-#include <iostream>
 #include "common/common_math.hpp"
-#include "common/common_macro_dependencies.hpp"
-#include "observer/function_def.hpp"
+#include "common/param_interface.hpp"
 namespace observer {
 using connector_common::real;
-using connector_common::concat;
-using connector_common::get_pair_impl_t;
+using connector_common::ParamsInterface;
 
 template <std::size_t XNm, std::size_t UNm, std::size_t ZNm>
 struct StateSpaceModel {
@@ -19,22 +16,20 @@ struct StateSpaceModel {
         real temp1;
         real temp2;
 
-        using ParamsT = std::tuple<
-            typename tuple_convert<decltype(temp1), BasicType::type<decltype(temp1)>() == BasicType::Type::VOID>::type,
-            typename tuple_convert<decltype(temp2), BasicType::type<decltype(temp2)>() == BasicType::Type::VOID>::type>;
-
-        template <std::size_t Index>
-        constexpr auto get_pair(auto const& prefix) {
-            static_assert(Index < 2, "Index out of range");
-            if constexpr(Index == 0) {
-                return get_pair_impl_t<Index - 0, BasicType::type<decltype(temp1)>() == BasicType::Type::VOID>::
-                    get_pair_impl(prefix, temp1, "temp1");
-            }
-            if constexpr(Index == 1) {
-                return get_pair_impl_t<Index - 1, BasicType::type<decltype(temp2)>() == BasicType::Type::VOID>::
-                    get_pair_impl(prefix, temp2, "temp2");
-            }
+        constexpr auto param_interface() {
+            return ParamsInterface(temp1, temp2, "temp1", "temp2");
         }
+
+        template<std::size_t Index, std::size_t N>
+        constexpr auto get_pair(const std::array<char, N>& prefix) {
+            return param_interface().template index_params<Index>(prefix);
+        }
+        template <std ::size_t Index>
+        constexpr void set(const auto& value) {
+            auto& v = param_interface().template get_ele<Index>();
+            v = value;
+        }
+
     } config;
     Eigen::Matrix<real, XNUM, XNUM> A;
     Eigen::Matrix<real, XNUM, UNUM> B;

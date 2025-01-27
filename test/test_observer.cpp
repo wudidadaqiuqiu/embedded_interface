@@ -9,21 +9,24 @@
 
 using std_msgs::msg::Float32;
 using std_msgs::msg::Float32MultiArray;
+
+using connector_common::concat;
 using observer::ObserverType;
 using observer::Observer;
 using observer::StateSpaceModel;
 using observer::KalmanFilter;
 using attached_node::AttachedNode;
-template <ObserverType ObserverTypeT, typename... ObserverArgs>
-using ObserverNode = AttachedNode<Observer<ObserverTypeT>, ObserverArgs...>;
+template <std::size_t M, ObserverType ObserverTypeT, typename... ObserverArgs>
+using ObserverNode = AttachedNode<M, Observer<ObserverTypeT>, ObserverArgs...>;
 
 KalmanFilter<1, 0, 1>::Config kfconfig;
 
 class ObserverTestNode : public rclcpp::Node {
 public:
     ObserverTestNode() 
-        : Node("observer_test_node")
-        , kf_node(kfconfig)
+        : Node("observer_test_node"),
+        td_node(concat("td"))
+        , kf_node(kfconfig, concat("kf"))
         {
         td_node.init(*this);
         kf_node.init(*this);
@@ -38,14 +41,14 @@ public:
         });
         power_real_sub = this->create_subscription<Float32>(
             "power_real", 10, [this](const Float32::SharedPtr msg) {
-            ObserverKf::UpdateData update_data = {
-                .z = {msg.get()->data},
-            };
-            kf_node.get().predict(ObserverKf::PredictData{});
-            kf_node.get().update(update_data);
+            // ObserverKf::UpdateData update_data = {
+            //     .z = {msg.get()->data},
+            // };
+            // kf_node.get().predict(ObserverKf::PredictData{});
+            // kf_node.get().update(update_data);
             
-            msg_power.data = kf_node.get().get_state().x.front();
-            pub_power->publish(msg_power);
+            // msg_power.data = kf_node.get().get_state().x.front();
+            // pub_power->publish(msg_power);
         });
         timer_ =
             this->create_wall_timer(std::chrono::milliseconds(1), [this]() -> void {
@@ -54,8 +57,8 @@ public:
     }
     
 private:
-    ObserverNode<ObserverType::TD> td_node;
-    ObserverNode<ObserverType::KF, decltype(kfconfig.model)> kf_node;
+    ObserverNode<3, ObserverType::TD> td_node;
+    ObserverNode<3, ObserverType::KF, decltype(kfconfig.model)> kf_node;
     using ObserverKf = std::remove_reference_t<decltype(kf_node.get())>;
     rclcpp::Subscription<Float32>::SharedPtr omega_sub;
     rclcpp::Subscription<Float32>::SharedPtr power_real_sub;
