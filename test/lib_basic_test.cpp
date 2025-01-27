@@ -23,6 +23,7 @@ inline constexpr void test_types() {
     static_assert(BasicType::type<std::array<float, 3>>() == BasicType::Type::FLOAT_ARR, "std::array<float> test failed");
     static_assert(BasicType::type<std::vector<int>>() == BasicType::Type::INT_ARR, "std::vector<int> test failed");
     static_assert(BasicType::type<void>() == BasicType::Type::VOID, "VOID test failed");
+    static_assert(BasicType::type<float&>() == BasicType::type<const double&>(), "type mismatch");
 }
 
 using Kf = observer::KalmanFilter<1, 0, 1>;

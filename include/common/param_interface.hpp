@@ -131,9 +131,23 @@ struct ParamsInterface {
 	template <std::size_t Index>
 	constexpr auto index_pair(const auto& prefix) {
 		static_assert(Index < PARAMS_COUNT, "Index out of range");
+        // Count 0 -> Max ; 0 <= Index < PARAMS_COUNT
 		return for_each_conditional_return<
-			Index, PARAMS_COUNT, ParamDeclare::template SpecializationInRange,
+			Index, sizeof...(Args) / 2, ParamDeclare::template SpecializationInRange,
 			ParamDeclare::template SpecializationPairReturn>(prefix, *this);
+
+        // <Index, 3, ...> unfold to 
+        /*
+        if constexpr (ConditionFuncT<Index, 0>::func()) {
+            return ReturnFuncT<Index, Count>::func(params...);
+        }
+        if constexpr (ConditionFuncT<Index, 1>::func()) {
+            return ReturnFuncT<Index, Count>::func(params...);
+        }
+        if constexpr (ConditionFuncT<Index, 2>::func()) {
+            return ReturnFuncT<Index, Count>::func(params...);
+        }
+        */
 	}
 
 	template <std::size_t Index>

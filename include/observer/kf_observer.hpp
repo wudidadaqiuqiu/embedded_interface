@@ -47,7 +47,6 @@ class KalmanFilter {
         template <std::size_t Index>
         void set(const auto& value) {
             auto pairhint = param_interface().template index_param_hint<Index>();
-            static_assert(BasicType::type<float&>() == BasicType::type<const double&>(), "type mismatch");
             static_assert(BasicType::type<decltype(value)>() == BasicType::type<decltype(pairhint.get_value())>(), "type mismatch");
             if constexpr (BasicType::type<decltype(value)>() != BasicType::Type::FLOAT) {
                 set<Index, true>(value);

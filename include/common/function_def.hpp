@@ -99,7 +99,6 @@ template <std::size_t Index, std::size_t Max,
     template <std::size_t, std::size_t> typename ConditionFuncT,
     template <std::size_t, std::size_t> typename ReturnFuncT, std::size_t Count=0>
 static constexpr auto for_each_conditional_return(auto&... params) -> auto {
-    static_assert(Index < Max, "Index out of range");
     static_assert(Count < Max, "Index out of range");
     if constexpr (ConditionFuncT<Index, Count>::func()) {
         return ReturnFuncT<Index, Count>::func(params...);
