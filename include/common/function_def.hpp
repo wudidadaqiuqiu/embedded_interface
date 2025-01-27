@@ -138,20 +138,6 @@ inline auto to_string(const T& mat) -> std::string{
     return ss.str();
 }
 
-template<std::size_t Index, bool B=false>
-struct get_pair_impl_t {
-    static constexpr auto get_pair_impl(const auto& prefix, auto& self, auto const& name)
-         -> std::pair<std::array<char, decltype(concat(prefix, ".", name)){}.size()>, decltype(std::ref(self))> {
-        return std::pair{concat(prefix, ".", name), std::ref(self)};
-    }
-};
-template <std::size_t Index>
-struct get_pair_impl_t<Index, true> {
-    static constexpr auto get_pair_impl(const auto& prefix, auto& self, auto const& name) {
-        return self.config.template get_pair<Index>(concat(prefix, ".", name));
-    }
-};
-
 
 template <typename T>
 struct count_elements_t {

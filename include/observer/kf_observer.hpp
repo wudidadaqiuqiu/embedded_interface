@@ -50,15 +50,9 @@ class KalmanFilter {
         constexpr auto param_interface() {
             return ParamsInterface(model, q_mat, r_mat, "model", "q_mat", "r_mat");
         }
-
-        template<std::size_t Index, std::size_t N>
-        constexpr auto get_pair(const std::array<char, N>& prefix) {
-            return param_interface().template index_params<Index>(prefix);
-        }
-
         template <std::size_t Index>
         void set(const auto& value) {
-            PairHint pairhint(get_pair<Index>(concat("_")));
+            auto pairhint = param_interface().template index_param_hint<Index>();
             static_assert(BasicType::type<float&>() == BasicType::type<const double&>(), "type mismatch");
             static_assert(BasicType::type<decltype(value)>() == BasicType::type<decltype(pairhint.get_value())>(), "type mismatch");
             if constexpr (BasicType::type<decltype(value)>() != BasicType::Type::FLOAT) {
@@ -69,15 +63,13 @@ class KalmanFilter {
             }
             if (pairhint.equal_first_namespace("model")) {
                 LOG_DEBUG(KALMAN_FILTER_DEBUG, "model: %s\\0, %ld", to_string(pairhint.pair_.first).c_str(), Index);
-                // param_interface().template index_param_pair<Index>().get_value() = value;
-                
                 return;
             }
         }
 
         template <std::size_t Index, bool B>
         void set(const auto& value) {
-            auto& v = param_interface().template index_param_pair<Index>().get_value();
+            auto& v = param_interface().template index_param_hint<Index>().get_value();
             if (v.size() != value.size()) {
                 // 逆天 string加法 std::format依赖太多了
                 throw std::runtime_error("Size of q_mat " + std::to_string(q_mat.size()) + 
@@ -104,7 +96,7 @@ class KalmanFilter {
 
         template <std::size_t Index, typename I>
         void set(const auto& value) {
-            auto& v = param_interface().template index_param_pair<Index>().get_value();
+            auto& v = param_interface().template index_param_hint<Index>().get_value();
             v = value;
             LOG_DEBUG(KALMAN_FILTER_DEBUG, "model: %lf, %lf", model.config.temp1, model.config.temp2); 
         }

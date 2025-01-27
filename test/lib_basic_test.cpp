@@ -34,15 +34,15 @@ using connector_common::get_range_t;
 static Kf::Config config;
 static Kf kf(config);
 int main() {
-    std::cout << kf.config.model.config.get_pair<0>(concat("pre")).first.data() << std::endl;
+    std::cout << kf.config.model.config.param_interface().template index_pair<0>(concat("pre")).first.data() << std::endl;
     static_assert(BasicType::type<decltype(
-        kf.config.get_pair<0>(concat("pre")).second.get())>() == 
+        kf.config.param_interface().template index_pair<0>(concat("pre")).second.get())>() == 
         BasicType::Type::FLOAT, 
         "not compile time");
-    std::cout << kf.config.get_pair<0>(concat("pre")).first.data() << std::endl;
-    std::cout << kf.config.get_pair<1>(concat("pre")).first.data() << std::endl;
-    std::cout << kf.config.get_pair<2>(concat("pre")).first.data() << std::endl;
-    std::cout << kf.config.get_pair<3>(concat("pre")).first.data() << std::endl;
+    std::cout << kf.config.param_interface().template index_pair<0>(concat("pre")).first.data() << std::endl;
+    std::cout << kf.config.param_interface().template index_pair<1>(concat("pre")).first.data() << std::endl;
+    std::cout << kf.config.param_interface().template index_pair<2>(concat("pre")).first.data() << std::endl;
+    std::cout << kf.config.param_interface().template index_pair<3>(concat("pre")).first.data() << std::endl;
     
     using TestType = std::tuple<int, float, std::tuple<int, char>, double>;
     std::cout << "Number of elements in test_type: " 
@@ -50,10 +50,11 @@ int main() {
     static_assert(count_elements_t<TestType>::value == 5, "count_elements_t failed");
     // static_assert(count_elements_t<Kf::Config::ParamDeclare::Params>::value == 4, "count_elements_t failed");
     static_assert(count_elements_t<int>::value == 1, "basic type is not 1");
-    kf.config.get_pair<0>(concat("pre")).second.get() = 2;
-    std::cout << kf.config.get_pair<0>(concat("pre")).second << std::endl;
-    // std::cout << connector_common::concat("pre").data() << std::endl;
-    // std::cout << kf.config.get_pair<0>("pre").second << std::endl;
+
+    kf.config.param_interface().template index_pair<0>(concat("pre")).second.get() = 2;
+    std::cout << kf.config.param_interface().template index_pair<0>(concat("pre")).second << std::endl;
+    
+    std::cout << connector_common::concat("pre").data() << std::endl;
     static_assert(concat(".", "pre") == concat(".pre"), "concat failed");
 
     std::array<char, 5> test = {'t', 'e', 's', 't', '\0'};

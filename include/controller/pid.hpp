@@ -26,11 +26,6 @@ public:
             return ParamsInterface(kp, ki, kd, error_max, irange, outmax, "kp", "ki", "kd", "error_max", "irange", "outmax");
         }
 
-        template<std::size_t Index, std::size_t N>
-        constexpr auto get_pair(const std::array<char, N>& prefix) {
-            return param_interface().template index_params<Index>(prefix);
-        }
-
 		template <std ::size_t Index>
         constexpr void set(const auto& value) {
             auto& v = param_interface().template get_ele<Index>();

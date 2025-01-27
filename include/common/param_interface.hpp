@@ -6,7 +6,6 @@
 namespace connector_common {
 using connector_common::BasicType;
 using connector_common::InRange;
-using connector_common::get_pair_impl_t;
 using connector_common::get_range_pair;
 using connector_common::get_lower;
 using connector_common::count_elements_t;
@@ -22,6 +21,21 @@ struct tuple_convert<T, true> {
     using type = decltype(typename T::Config{}.param_interface())::ParamDeclare::Params;
 };
 
+
+template<std::size_t Index, bool B=false>
+struct get_pair_impl_t {
+    static constexpr auto get_pair_impl(const auto& prefix, auto& self, auto const& name)
+         -> std::pair<std::array<char, decltype(concat(prefix, ".", name)){}.size()>, decltype(std::ref(self))> {
+        return std::pair{concat(prefix, ".", name), std::ref(self)};
+    }
+};
+template <std::size_t Index>
+struct get_pair_impl_t<Index, true> {
+    static constexpr auto get_pair_impl(const auto& prefix, auto& self, auto const& name) {
+        return self.config.template param_interface().template index_pair<Index>(concat(prefix, ".", name));
+    }
+};
+
 template<std::size_t Index, std::size_t Count, typename TupleT>
 struct PairReturn {
     static constexpr auto func(const auto& prefix, auto& self) {
@@ -29,7 +43,7 @@ struct PairReturn {
                 BasicType::type<decltype(self.template get_ele<Count>())>() == BasicType::Type::VOID>::
                 get_pair_impl(prefix,
                     self.template get_ele<Count>(), 
-                    self.template get_names_tuple<Count>());
+                    self.template get_namespace<Count>());
     }
 };
 
@@ -42,7 +56,7 @@ struct ParamDeclarationGen {
     using Params = std::tuple<
         typename tuple_convert<Args, BasicType::type<Args>() == BasicType::Type::VOID>::type...>;
 
-    // get_ele 和 get_names_tuple 是interface
+    // get_ele 和 get_namespace 是interface
     template<std::size_t Index, std::size_t Count>
     using SpecializationPairReturn = PairReturn<Index, Count, Params>;
 
@@ -100,13 +114,13 @@ struct ParamsInterface {
     }
 
     template <std::size_t Index>
-    constexpr auto get_names_tuple() -> auto const& {
+    constexpr auto get_namespace() -> auto const& {
         return std::get<Index + sizeof...(Args) / 2>(refs);
         // (std::tie("model", "q_mat", "r_mat"));
     }
 
     template<std::size_t Index>
-    constexpr auto index_params(const auto& prefix) {
+    constexpr auto index_pair(const auto& prefix) {
         static_assert(Index < PARAMS_COUNT, "Index out of range");
         return for_each_conditional_return<Index, 
             PARAMS_COUNT, 
@@ -115,9 +129,14 @@ struct ParamsInterface {
     }
 
     template<std::size_t Index>
-    constexpr auto index_param_pair() {
-        return PairHint(index_params<Index>("_"));
-    }    
+    constexpr auto index_param_hint(const auto& prefix) {
+        return PairHint(index_pair<Index>(prefix));
+    }
+
+    template<std::size_t Index>
+    constexpr auto index_param_hint() {
+        return PairHint(index_pair<Index>(concat("_")));
+    }
 };
 
 

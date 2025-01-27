@@ -18,11 +18,6 @@ struct TdObserver {
         constexpr auto param_interface() {
             return ParamsInterface(r, h, h0, "r", "h", "h0");
         }
-
-        template<std::size_t Index, std::size_t N>
-        constexpr auto get_pair(const std::array<char, N>& prefix) {
-            return param_interface().template index_params<Index>(prefix);
-        }
         
         template <std ::size_t Index>
         constexpr void set(const auto& value) {

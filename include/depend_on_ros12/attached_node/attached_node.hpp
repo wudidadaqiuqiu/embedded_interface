@@ -33,8 +33,7 @@ public:
     struct DeclareAllParameters {
 		template<std::size_t Index>
 		static void func(THIS* node_ptr) {
-			auto pair_hint = PairHint(node_ptr->obj_.config.
-				template get_pair<Index>(node_ptr->strong_type_name));
+			PairHint pair_hint = node_ptr->obj_.config.template param_interface().template index_param_hint<Index>(node_ptr->strong_type_name);
 			const std::string param_name = pair_hint.get_name();
 			if (node_ptr->node_->has_parameter(param_name)) {
 				LOG_ERROR(1, "AttachedNode %s Parameter %s already exists", 
@@ -59,8 +58,7 @@ public:
     struct SubscribeAllParameters {
 		template<std::size_t Index>
 		static void func(THIS* const node_ptr) {
-			auto pair_hint = PairHint(node_ptr->obj_.config.
-				template get_pair<Index>(node_ptr->strong_type_name));
+			PairHint pair_hint = node_ptr->obj_.config.template param_interface().template index_param_hint<Index>(node_ptr->strong_type_name);
 			const std::string param_name = pair_hint.get_name();
 			auto param_subscriber = std::make_shared<rclcpp::ParameterEventHandler>(node_ptr->node_);
 			auto cb = [node_ptr, pair_hint](const rclcpp::Parameter & p) {
