@@ -12,6 +12,7 @@ namespace observer {
 using connector_common::to_string;
 using connector_common::ParamsInterface;
 using connector_common::BasicType;
+using connector_common::for_each_conditional_return;
 
 template <std::size_t XNm, std::size_t UNm, std::size_t ZNm>
 class KalmanFilter {
@@ -42,22 +43,20 @@ class KalmanFilter {
             r_mat.resize(R.SizeAtCompileTime);
         }
         constexpr auto param_interface() {
-            return ParamsInterface(model, q_mat, r_mat, "model", "q_mat", "r_mat");
+            return ParamsInterface(q_mat,model, r_mat, "q_mat", "model", "r_mat");
         }
+
         template <std::size_t Index>
         void set(const auto& value) {
             auto pairhint = param_interface().template index_param_hint<Index>();
             static_assert(BasicType::type<decltype(value)>() == BasicType::type<decltype(pairhint.get_value())>(), "type mismatch");
-            if constexpr (BasicType::type<decltype(value)>() != BasicType::Type::FLOAT) {
-                set<Index, true>(value);
-                return;
-            } else {
-                set<Index, int>(value);
-            }
-            if (pairhint.equal_first_namespace("model")) {
-                LOG_DEBUG(KALMAN_FILTER_DEBUG, "model: %s\\0, %ld", to_string(pairhint.pair_.first).c_str(), Index);
-                return;
-            }
+            return for_each_conditional_return<
+                Index, 3, decltype(param_interface())::ParamDeclare::template SpecializationInRange,
+                my_set_t>(*this, value);
+            // if (pairhint.equal_first_namespace("model")) {
+            //     LOG_DEBUG(KALMAN_FILTER_DEBUG, "model: %s\\0, %ld", to_string(pairhint.pair_.first).c_str(), Index);
+            //     return;
+            // }
         }
 
         template <std::size_t Index, bool B>
@@ -87,12 +86,34 @@ class KalmanFilter {
                 to_string(Q).c_str(), to_string(R).c_str());
         }
 
-        template <std::size_t Index, typename I>
-        void set(const auto& value) {
-            auto& v = param_interface().template index_param_hint<Index>().get_value();
-            v = value;
-            LOG_DEBUG(KALMAN_FILTER_DEBUG, "model: %lf, %lf", model.config.temp1, model.config.temp2); 
-        }
+        template <std::size_t Index, std::size_t Count>
+        struct my_set_t {
+            static void func(Config& self, const auto& value) {
+                auto& v = self.param_interface().template get_ele<Count>();
+                static_assert(decltype(Config{}.param_interface())::PARAMS_COUNT == 4, "assert test failed");
+                constexpr auto index = decltype(Config{}.param_interface())::template get_ele_sub_index<Index, Count>();
+                v.config.template set<index>(value);
+                LOG_DEBUG(KALMAN_FILTER_DEBUG, "model index: %ld, %ld", Index, index);
+                LOG_DEBUG(KALMAN_FILTER_DEBUG, "model: %lf, %lf", self.model.config.temp1, self.model.config.temp2); 
+            }
+        };
+
+        template <std::size_t Index>
+        struct my_set_t<Index, 0> {
+            static void func(Config& self, const auto& value) {
+                self.set<Index, true>(value);
+            }
+        };
+
+        template <std::size_t Index>
+        struct my_set_t<Index, 2> {
+            static void func(Config& self, const auto& value) { 
+                self.set<Index, true>(value);
+            }
+        };
+
+        
+
 	} config;
     struct UpdateData {
         std::array<real, ZNm> z;

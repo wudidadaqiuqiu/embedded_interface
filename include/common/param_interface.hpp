@@ -116,16 +116,22 @@ struct ParamsInterface {
 		typename get_lower<sizeof...(Args) / 2, std::tuple<Args...>>::type>;
 	static constexpr std::size_t PARAMS_COUNT =
 		count_elements_t<typename ParamDeclare::Params>::value;
-	template <std::size_t Index>
+
+	template <std::size_t Count>
 	// 意味着函数的结果能在编译时获得，结果本身无所谓编译时还是运行时
 	constexpr auto get_ele() -> auto& {
-		return std::get<Index>(refs);
+		return std::get<Count>(refs);
 	}
 
-	template <std::size_t Index>
+	template <std::size_t Count>
 	constexpr auto get_namespace() -> auto const& {
-		return std::get<Index + sizeof...(Args) / 2>(refs);
+		return std::get<Count + sizeof...(Args) / 2>(refs);
 		// (std::tie("model", "q_mat", "r_mat"));
+	}
+
+	template <std::size_t Index, std::size_t Count>
+	static constexpr auto get_ele_sub_index() -> std::size_t {
+		return Index - get_range_pair<Count, typename ParamDeclare::Params>().first;
 	}
 
 	template <std::size_t Index>
@@ -136,18 +142,18 @@ struct ParamsInterface {
 			Index, sizeof...(Args) / 2, ParamDeclare::template SpecializationInRange,
 			ParamDeclare::template SpecializationPairReturn>(prefix, *this);
 
-        // <Index, 3, ...> unfold to 
-        /*
-        if constexpr (ConditionFuncT<Index, 0>::func()) {
-            return ReturnFuncT<Index, Count>::func(params...);
-        }
-        if constexpr (ConditionFuncT<Index, 1>::func()) {
-            return ReturnFuncT<Index, Count>::func(params...);
-        }
-        if constexpr (ConditionFuncT<Index, 2>::func()) {
-            return ReturnFuncT<Index, Count>::func(params...);
-        }
-        */
+		// <Index, 3, ...>  and Index < PARAMS_COUNT unfold to
+		/*
+		if constexpr (ConditionFuncT<Index, 0>::func()) {
+			return ReturnFuncT<Index, 0>::func(params...);
+		}
+		if constexpr (ConditionFuncT<Index, 1>::func()) {
+			return ReturnFuncT<Index, 1>::func(params...);
+		}
+		if constexpr (ConditionFuncT<Index, 2>::func()) {
+			return ReturnFuncT<Index, 2>::func(params...);
+		}
+		*/
 	}
 
 	template <std::size_t Index>
