@@ -20,10 +20,9 @@ struct StateSpaceModel {
             return ParamsInterface(temp1, temp2, "temp1", "temp2");
         }
 
-        template <std ::size_t Index>
-        constexpr void set(const auto& value) {
-            auto& v = param_interface().template get_ele<Index>();
-            v = value;
+        template <std::size_t Index>
+        void set(const auto& value) {
+            param_interface().template set<Index>(value);
         }
 
     } config;

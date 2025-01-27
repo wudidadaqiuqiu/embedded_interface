@@ -11,9 +11,6 @@
 namespace observer {
 using connector_common::to_string;
 using connector_common::ParamsInterface;
-using connector_common::BasicType;
-using connector_common::assign_operate;
-using connector_common::for_each_conditional_return;
 
 template <std::size_t XNm, std::size_t UNm, std::size_t ZNm>
 class KalmanFilter {
