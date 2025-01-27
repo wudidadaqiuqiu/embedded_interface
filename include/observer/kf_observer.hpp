@@ -1,6 +1,5 @@
 #pragma once
 #include <Eigen/Dense>
-#include "common/common_macro_dependencies.hpp"
 #include "common/debug/log.hpp"
 
 #include "common/param_interface.hpp"
@@ -11,11 +10,8 @@
 #endif
 namespace observer {
 using connector_common::to_string;
-using connector_common::split;
-using connector_common::concat;
-using connector_common::in_closed_range;
 using connector_common::ParamsInterface;
-using connector_common::PairHint;
+using connector_common::BasicType;
 
 template <std::size_t XNm, std::size_t UNm, std::size_t ZNm>
 class KalmanFilter {
@@ -45,8 +41,6 @@ class KalmanFilter {
             q_mat.resize(Q.SizeAtCompileTime);
             r_mat.resize(R.SizeAtCompileTime);
         }
-        DECLARE_PARAM_MAP_DATA(q_mat, r_mat)
-
         constexpr auto param_interface() {
             return ParamsInterface(model, q_mat, r_mat, "model", "q_mat", "r_mat");
         }

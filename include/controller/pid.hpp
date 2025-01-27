@@ -1,7 +1,6 @@
 #pragma once
 #include "controller/controller_def.hpp"
 #include "msg_layer/msg_layer.hpp"
-#include "common/macro_def.h"
 #include "common/param_interface.hpp"
 namespace controller {
 using connector_common::data_convert;

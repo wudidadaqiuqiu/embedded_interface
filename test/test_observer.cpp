@@ -2,8 +2,6 @@
 #include "std_msgs/msg/float32.hpp"
 #include "std_msgs/msg/float32_multi_array.hpp"
 
-#include "common/common_macro_dependencies.hpp"
-
 #include "depend_on_ros12/attached_node/attached_node.hpp"
 #include "observer/observer.hpp"
 

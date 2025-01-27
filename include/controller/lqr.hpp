@@ -4,8 +4,6 @@
 #include "controller/controller_def.hpp"
 #include "msg_layer/msg_layer.hpp"
 #include "common/debug/log.hpp"
-#include "common/type_def.hpp"
-#include "common/macro_def.h"
 
 #include "common/param_interface.hpp"
 

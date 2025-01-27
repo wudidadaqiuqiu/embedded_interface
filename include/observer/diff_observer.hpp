@@ -1,6 +1,5 @@
 #pragma once
 #include "common/common_math.hpp"
-#include "common/macro_def.h"
 #include "common/param_interface.hpp"
 namespace observer {
 using connector_common::real;
