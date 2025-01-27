@@ -41,14 +41,14 @@ public:
         });
         power_real_sub = this->create_subscription<Float32>(
             "power_real", 10, [this](const Float32::SharedPtr msg) {
-            // ObserverKf::UpdateData update_data = {
-            //     .z = {msg.get()->data},
-            // };
-            // kf_node.get().predict(ObserverKf::PredictData{});
-            // kf_node.get().update(update_data);
+            ObserverKf::UpdateData update_data = {
+                .z = {msg.get()->data},
+            };
+            kf_node.get().predict(ObserverKf::PredictData{});
+            kf_node.get().update(update_data);
             
-            // msg_power.data = kf_node.get().get_state().x.front();
-            // pub_power->publish(msg_power);
+            msg_power.data = kf_node.get().get_state().x.front();
+            pub_power->publish(msg_power);
         });
         timer_ =
             this->create_wall_timer(std::chrono::milliseconds(1), [this]() -> void {
