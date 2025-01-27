@@ -12,6 +12,7 @@ namespace observer {
 using connector_common::to_string;
 using connector_common::ParamsInterface;
 using connector_common::BasicType;
+using connector_common::assign_operate;
 using connector_common::for_each_conditional_return;
 
 template <std::size_t XNm, std::size_t UNm, std::size_t ZNm>
@@ -43,25 +44,26 @@ class KalmanFilter {
             r_mat.resize(R.SizeAtCompileTime);
         }
         constexpr auto param_interface() {
-            return ParamsInterface(q_mat,model, r_mat, "q_mat", "model", "r_mat");
+            return ParamsInterface(q_mat, model, r_mat, "q_mat", "model", "r_mat");
         }
 
         template <std::size_t Index>
         void set(const auto& value) {
-            auto pairhint = param_interface().template index_param_hint<Index>();
-            static_assert(BasicType::type<decltype(value)>() == BasicType::type<decltype(pairhint.get_value())>(), "type mismatch");
-            return for_each_conditional_return<
-                Index, 3, decltype(param_interface())::ParamDeclare::template SpecializationInRange,
-                my_set_t>(*this, value);
-            // if (pairhint.equal_first_namespace("model")) {
-            //     LOG_DEBUG(KALMAN_FILTER_DEBUG, "model: %s\\0, %ld", to_string(pairhint.pair_.first).c_str(), Index);
-            //     return;
-            // }
+            using ParamIntT = decltype(param_interface());
+            param_interface().template set<Index>(value);
+            constexpr auto COUNT = ParamIntT::template index_count<Index>();
+            if constexpr (ParamIntT::template index_count<Index>() == 1) {
+                auto index = ParamIntT::template get_ele_sub_index<Index, COUNT>();
+                LOG_DEBUG(KALMAN_FILTER_DEBUG, "model index: %ld, %ld", Index, index);
+                LOG_DEBUG(KALMAN_FILTER_DEBUG, "model: %lf, %lf", model.config.temp1, model.config.temp2);
+            } else {
+                // 要用else 括起来，否则会编译所有的情况
+                auto& v = param_interface().template get_ele<COUNT>();
+                vector_set(v, value);
+            }
         }
 
-        template <std::size_t Index, bool B>
-        void set(const auto& value) {
-            auto& v = param_interface().template index_param_hint<Index>().get_value();
+        void vector_set(auto& v, const auto& value) {
             if (v.size() != value.size()) {
                 // 逆天 string加法 std::format依赖太多了
                 throw std::runtime_error("Size of q_mat " + std::to_string(q_mat.size()) + 
@@ -69,9 +71,9 @@ class KalmanFilter {
                                         " is not equal to Q " + std::to_string(Q.rows() * Q.cols()) +
                                         " or R " + std::to_string(R.rows() * R.cols()));
             }
-            v.resize(0);
-            std::transform(value.begin(), value.end(), std::back_inserter(v),
-                [](decltype(*value.begin()) val) { return static_cast<real>(val); });
+            // v.resize(0);
+            // std::transform(value.begin(), value.end(), std::back_inserter(v),
+            //     [](decltype(*value.begin()) val) { return static_cast<real>(val); });
             // std::lock_guard<std::mutex> lock(mutex);
             LOG_DEBUG(KALMAN_FILTER_DEBUG, "set q and r value: %s", connector_common::to_string(value).c_str());
             LOG_DEBUG(KALMAN_FILTER_DEBUG, "be setted: %s", to_string(v).c_str());
@@ -85,35 +87,6 @@ class KalmanFilter {
             LOG_DEBUG(KALMAN_FILTER_DEBUG, "Kalman filter config updated: \nQ:\n%s\nR:\n%s", 
                 to_string(Q).c_str(), to_string(R).c_str());
         }
-
-        template <std::size_t Index, std::size_t Count>
-        struct my_set_t {
-            static void func(Config& self, const auto& value) {
-                auto& v = self.param_interface().template get_ele<Count>();
-                static_assert(decltype(Config{}.param_interface())::PARAMS_COUNT == 4, "assert test failed");
-                constexpr auto index = decltype(Config{}.param_interface())::template get_ele_sub_index<Index, Count>();
-                v.config.template set<index>(value);
-                LOG_DEBUG(KALMAN_FILTER_DEBUG, "model index: %ld, %ld", Index, index);
-                LOG_DEBUG(KALMAN_FILTER_DEBUG, "model: %lf, %lf", self.model.config.temp1, self.model.config.temp2); 
-            }
-        };
-
-        template <std::size_t Index>
-        struct my_set_t<Index, 0> {
-            static void func(Config& self, const auto& value) {
-                self.set<Index, true>(value);
-            }
-        };
-
-        template <std::size_t Index>
-        struct my_set_t<Index, 2> {
-            static void func(Config& self, const auto& value) { 
-                self.set<Index, true>(value);
-            }
-        };
-
-        
-
 	} config;
     struct UpdateData {
         std::array<real, ZNm> z;

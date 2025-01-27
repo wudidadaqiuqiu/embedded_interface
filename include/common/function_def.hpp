@@ -258,4 +258,31 @@ auto split(const std::array<char, M>& arr, char delimiter) -> std::vector<std::v
     }
     return result;
 }
+
+
+template <typename T, typename U>
+struct assign_operate {
+    assign_operate(T& self, const U& value) {
+        self = value;
+    }
+};
+
+template <typename T, typename U>
+struct assign_operate<std::vector<T>, std::vector<U>> {
+    assign_operate(std::vector<T>& self, const std::vector<U>& value) {
+        self.clear();
+        for (auto ele : value) {
+            self.push_back(ele);
+        }
+    }
+};
+
+template <auto A, auto... As>
+struct get_first {
+    static constexpr auto value = A;
+    static constexpr auto func() {
+        return A;
+    }
+};
+
 }

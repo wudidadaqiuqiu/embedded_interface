@@ -11,6 +11,8 @@ using connector_common::for_each_conditional_return;
 using connector_common::get_lower;
 using connector_common::get_range_pair;
 using connector_common::InRange;
+using connector_common::assign_operate;
+using connector_common::get_first;
 
 template <typename T, bool B = false>
 struct tuple_convert {
@@ -110,6 +112,7 @@ struct PairHint {
 
 template <typename... Args>
 struct ParamsInterface {
+	using THIS = ParamsInterface<Args...>;
 	std::tuple<Args&...> refs;
 	constexpr ParamsInterface(Args&... args) : refs(std::tie(args...)) {}
 	using ParamDeclare = ParamDeclarationGen<
@@ -132,6 +135,24 @@ struct ParamsInterface {
 	template <std::size_t Index, std::size_t Count>
 	static constexpr auto get_ele_sub_index() -> std::size_t {
 		return Index - get_range_pair<Count, typename ParamDeclare::Params>().first;
+	}
+
+	template <std::size_t Count>
+	using BasicTypeT = BasicType::TypeT<BasicType::type<std::tuple_element_t<Count, std::tuple<Args...>>>()>;
+
+	template <std::size_t Count>
+	static constexpr auto is_sub_structure() -> bool {
+	    return BasicType::type<std::tuple_element_t<Count, std::tuple<Args...>>>() == BasicType::Type::VOID;
+	}
+
+	template <std::size_t Index, std::size_t Count>
+	using get_second = get_first<Count, Index>;
+
+	template <std::size_t Index>
+	static constexpr auto index_count() -> std::size_t {
+		return for_each_conditional_return<
+			Index, sizeof...(Args) / 2, ParamDeclare::template SpecializationInRange,
+			get_second>();
 	}
 
 	template <std::size_t Index>
@@ -165,6 +186,32 @@ struct ParamsInterface {
 	constexpr auto index_param_hint() {
 		return PairHint(index_pair<Index>(concat("_")));
 	}
+
+	template <std::size_t Count>
+	using EleT = std::tuple_element_t<Count, std::tuple<Args...>>;
+	template <std::size_t Index>
+	void set(const auto& value) {
+		auto pairhint = index_param_hint<Index>();
+		static_assert(BasicType::type<decltype(value)>() == BasicType::type<decltype(pairhint.get_value())>(), "type mismatch");
+		return for_each_conditional_return<
+			Index, sizeof...(Args) / 2, ParamDeclare::template SpecializationInRange,
+			param_set_t>(*this, value);
+	}
+
+
+	template <std::size_t Index, std::size_t Count>
+	struct param_set_t {
+		static void func(THIS& self, const auto& value) {
+			static_assert(THIS::index_count<Index>() == Count, "index count error");
+			auto& v = self.get_ele<Count>();
+			if constexpr (is_sub_structure<Count>()) {
+				constexpr auto index = get_ele_sub_index<Index, Count>();
+				v.config.template set<index>(value);
+			} else {
+				assign_operate(v, value);
+			}
+		}
+	};
 };
 
 }  // namespace connector_common
