@@ -7,7 +7,7 @@ public:
   SampleNodeWithParameters()
   : Node("node_with_parameters")
   {
-    this->declare_parameter("an_int_param", 0);
+    this->declare_parameter("a.an_int_param", 0);
 
     // Create a parameter subscriber that can be used to monitor parameter changes
     // (for this node's parameters as well as other nodes' parameters)
@@ -21,7 +21,7 @@ public:
           p.get_type_name().c_str(),
           p.as_int());
       };
-    cb_handle_ = param_subscriber_->add_parameter_callback("an_int_param", cb);
+    cb_handle_ = param_subscriber_->add_parameter_callback("a.an_int_param", cb);
   }
 
 private:

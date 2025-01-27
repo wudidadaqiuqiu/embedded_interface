@@ -3,7 +3,7 @@
 #include "common/type_def.hpp"
 #include "common/function_def.hpp"
 
-namespace observer {
+namespace connector_common {
 using connector_common::BasicType;
 using connector_common::InRange;
 using connector_common::get_pair_impl_t;
@@ -19,7 +19,7 @@ struct tuple_convert {
 
 template <typename T>
 struct tuple_convert<T, true> {
-    using type = T::Config::ParamsT;
+    using type = decltype(typename T::Config{}.param_interface())::ParamDeclare::Params;
 };
 
 template<std::size_t Index, std::size_t Count, typename TupleT>
@@ -57,7 +57,7 @@ struct ParamDeclarationGen<std::tuple<Args...>> : public ParamDeclarationGen<Arg
 template <typename... Args>
 struct ParamsInterface {
     std::tuple<Args&...> refs;
-    ParamsInterface(Args&... args) : refs(std::tie(args...)) {}
+    constexpr ParamsInterface(Args&... args) : refs(std::tie(args...)) {}
     using ParamDeclare = ParamDeclarationGen<typename get_lower<sizeof...(Args) / 2, std::tuple<Args...>>::type>;
     static constexpr std::size_t PARAMS_COUNT =  count_elements_t<typename ParamDeclare::Params>::value;
     template <std::size_t Index>
@@ -80,6 +80,40 @@ struct ParamsInterface {
             ParamDeclare::template SpecializationInRange, 
             ParamDeclare::template SpecializationPairReturn>(prefix, *this);
     }
+};
+
+
+template <std::size_t Nm, typename T>
+struct PairHint {
+    std::pair<std::array<char, Nm>, std::reference_wrapper<T>> pair_;
+    PairHint(std::pair<std::array<char, Nm>, std::reference_wrapper<T>> pair) : pair_(pair) {}
+
+    // 不写成constexpr了，太麻烦
+    auto equal_first_namespace(const std::string_view& name_arr) -> bool {
+        // first 为 "prefix.first_name_space?.." `prefix` 不能为空
+        auto res = split(pair_.first, '.');
+        if (res.size() < 2) {
+            throw std::runtime_error("prefix is empty");
+        }
+        return std::string(res[1].begin(), res[1].end()) == name_arr;
+    }
+
+    auto get_name() -> std::string {
+        if (pair_.first.at(pair_.first.size() - 1) != '\0') {
+            throw std::runtime_error(R"(pair_.first is not '\0' terminated)");
+        }
+        return std::string(pair_.first.begin(), pair_.first.end() - 1);
+    }
+
+    auto get_value() -> T& {
+        return pair_.second.get();
+    }
+    
+    constexpr auto get_enum() -> BasicType::Type {
+        return BasicType::type<T>();
+    }
+
+    using ValueT = BasicType::TypeT<BasicType::type<T>()>;
 };
 
 }

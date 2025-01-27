@@ -140,7 +140,8 @@ inline auto to_string(const T& mat) -> std::string{
 
 template<std::size_t Index, bool B=false>
 struct get_pair_impl_t {
-    static constexpr auto get_pair_impl(const auto& prefix, auto& self, auto const& name) {
+    static constexpr auto get_pair_impl(const auto& prefix, auto& self, auto const& name)
+         -> std::pair<std::array<char, decltype(concat(prefix, ".", name)){}.size()>, decltype(std::ref(self))> {
         return std::pair{concat(prefix, ".", name), std::ref(self)};
     }
 };
@@ -250,5 +251,26 @@ struct get_range<L, H, std::tuple<Ts...>> {
 template <std::size_t L, std::size_t H, typename... Ts>
 using get_range_t = get_range<L, H, Ts...>::type;
 
-
+template <std::size_t M>
+auto split(const std::array<char, M>& arr, char delimiter) -> std::vector<std::vector<char>> {
+    std::vector<std::vector<char>> result;
+    std::vector<char> current;
+    for (char c : arr) {
+        if (c == delimiter) {
+            if (!current.empty()) {
+                result.push_back(current);  // Push the current part
+                current.clear();  // Clear for the next part
+            }
+        } else if (c == '\0') {
+            break;
+        } else {
+            current.push_back(c);  // Add the character to the current part
+        }
+    }
+    
+    if (!current.empty()) {
+        result.push_back(current);  // Push the last part if any
+    }
+    return result;
+}
 }

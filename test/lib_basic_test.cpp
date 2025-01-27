@@ -9,7 +9,7 @@ using connector_common::BasicType;
 using observer::ObserverType;
 using observer::Observer;
 using connector_common::count_elements_t;
-
+using connector_common::concat;
 
 
 inline constexpr void test_types() {
@@ -33,15 +33,15 @@ using connector_common::get_range_t;
 static Kf::Config config;
 static Kf kf(config);
 int main() {
-    std::cout << kf.config.model.config.get_pair<0>("pre").first.data() << std::endl;
+    std::cout << kf.config.model.config.get_pair<0>(concat("pre")).first.data() << std::endl;
     static_assert(BasicType::type<decltype(
-        kf.config.get_pair<0>("pre").second.get())>() == 
+        kf.config.get_pair<0>(concat("pre")).second.get())>() == 
         BasicType::Type::FLOAT, 
         "not compile time");
-    std::cout << kf.config.get_pair<0>("pre").first.data() << std::endl;
-    std::cout << kf.config.get_pair<1>("pre").first.data() << std::endl;
-    std::cout << kf.config.get_pair<2>("pre").first.data() << std::endl;
-    std::cout << kf.config.get_pair<3>("pre").first.data() << std::endl;
+    std::cout << kf.config.get_pair<0>(concat("pre")).first.data() << std::endl;
+    std::cout << kf.config.get_pair<1>(concat("pre")).first.data() << std::endl;
+    std::cout << kf.config.get_pair<2>(concat("pre")).first.data() << std::endl;
+    std::cout << kf.config.get_pair<3>(concat("pre")).first.data() << std::endl;
     
     using TestType = std::tuple<int, float, std::tuple<int, char>, double>;
     std::cout << "Number of elements in test_type: " 
@@ -49,11 +49,16 @@ int main() {
     static_assert(count_elements_t<TestType>::value == 5, "count_elements_t failed");
     // static_assert(count_elements_t<Kf::Config::ParamDeclare::Params>::value == 4, "count_elements_t failed");
     static_assert(count_elements_t<int>::value == 1, "basic type is not 1");
-    kf.config.get_pair<0>("pre").second.get() = 2;
-    std::cout << kf.config.get_pair<0>("pre").second << std::endl;
+    kf.config.get_pair<0>(concat("pre")).second.get() = 2;
+    std::cout << kf.config.get_pair<0>(concat("pre")).second << std::endl;
     // std::cout << connector_common::concat("pre").data() << std::endl;
     // std::cout << kf.config.get_pair<0>("pre").second << std::endl;
+    static_assert(concat(".", "pre") == concat(".pre"), "concat failed");
 
+    std::array<char, 5> test = {'t', 'e', 's', 't', '\0'};
+    test.at(1) = 'a';
+    std::cout << concat(test, "post").data() << std::endl;
+    
     using my_tuple = std::tuple<int, bool, double>;
     using ss = get_lower<3, my_tuple>::type;
 
