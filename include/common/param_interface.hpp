@@ -163,6 +163,7 @@ struct ParamsInterface {
 	using get_second = get_first<Count, Index>;
 
 	template <std::size_t Index>
+	requires (Index < PARAMS_COUNT)
 	static constexpr auto index_count() -> std::size_t {
 		return for_each_conditional_return<
 			Index, sizeof...(Args) / 2, ParamDeclare::template SpecializationInRange,
@@ -170,6 +171,7 @@ struct ParamsInterface {
 	}
 
 	template <std::size_t Index>
+	requires (Index < PARAMS_COUNT)
 	constexpr auto index_pair(const auto& prefix) {
 		static_assert(Index < PARAMS_COUNT, "Index out of range");
         // Count 0 -> Max ; 0 <= Index < PARAMS_COUNT
@@ -192,11 +194,13 @@ struct ParamsInterface {
 	}
 
 	template <std::size_t Index>
+	requires (Index < PARAMS_COUNT)
 	constexpr auto index_param_hint(const auto& prefix) {
 		return PairHint(index_pair<Index>(prefix));
 	}
 
 	template <std::size_t Index>
+	requires (Index < PARAMS_COUNT)
 	constexpr auto index_param_hint() {
 		return PairHint(index_pair<Index>(concat("_")));
 	}
@@ -204,6 +208,7 @@ struct ParamsInterface {
 	template <std::size_t Count>
 	using EleT = std::tuple_element_t<Count, std::tuple<Args...>>;
 	template <std::size_t Index>
+	requires (Index < PARAMS_COUNT)
 	void set(const auto& value) {
 		auto pairhint = index_param_hint<Index>();
 		static_assert(BasicType::type<decltype(value)>() == BasicType::type<decltype(pairhint.get_value())>(), "type mismatch");

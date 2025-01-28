@@ -79,15 +79,15 @@ using connector_common::get_range_t;
 static Kf::Config config;
 static Kf kf(config);
 int main() {
-    std::cout << kf.config.model.config.param_interface().template index_pair<0>(concat("pre")).first.data() << std::endl;
+    // std::cout << kf.config.model.config.param_interface().template index_pair<0>(concat("pre")).first.data() << std::endl;
     // static_assert(BasicType::type<decltype(
     //     kf.config.param_interface().template index_pair<0>(concat("pre")).second.get())>() == 
     //     BasicType::Type::FLOAT, 
     //     "not compile time");
     std::cout << kf.config.param_interface().template index_pair<0>(concat("pre")).first.data() << std::endl;
     std::cout << kf.config.param_interface().template index_pair<1>(concat("pre")).first.data() << std::endl;
-    std::cout << kf.config.param_interface().template index_pair<2>(concat("pre")).first.data() << std::endl;
-    std::cout << kf.config.param_interface().template index_pair<3>(concat("pre")).first.data() << std::endl;
+    // std::cout << kf.config.param_interface().template index_pair<2>(concat("pre")).first.data() << std::endl;
+    // std::cout << kf.config.param_interface().template index_pair<3>(concat("pre")).first.data() << std::endl;
     
     using TestType = std::tuple<int, float, std::tuple<int, char>, double>;
     std::cout << "Number of elements in test_type: " 
@@ -96,8 +96,8 @@ int main() {
     // static_assert(count_elements_t<Kf::Config::ParamDeclare::Params>::value == 4, "count_elements_t failed");
     static_assert(count_elements_t<int>::value == 1, "basic type is not 1");
 
-    kf.config.param_interface().template index_pair<1>(concat("pre")).second.get() = 2;
-    std::cout << kf.config.param_interface().template index_pair<1>(concat("pre")).second << std::endl;
+    // kf.config.param_interface().template index_pair<1>(concat("pre")).second.get() = 2;
+    // std::cout << kf.config.param_interface().template index_pair<1>(concat("pre")).second << std::endl;
     
     std::cout << connector_common::concat("pre").data() << std::endl;
     static_assert(concat(".", "pre") == concat(".pre"), "concat failed");
@@ -145,12 +145,12 @@ int main() {
 
     
     // typename ParamDeclarationGen<TestS>::Params;
-    using type =
-		decltype(typename TestS::Config{}.param_interface())::ParamDeclare::Params;
+    // using type =
+	// 	decltype(typename TestS::Config{}.param_interface())::ParamDeclare::Params;
     using TupleTestT = std::tuple<int, std::tuple<>, float>;
     
     constexpr auto s = connector_common::get_range_pair<1, TupleTestT>().first;
-    static_assert((s == connector_common::get_range_pair<1, TupleTestT>().second == 1), "");
+    static_assert(((s == connector_common::get_range_pair<1, TupleTestT>().second) == 1), "");
     static_assert(connector_common::get_range_pair<0, TupleTestT>().second == 1, "");
     // static_assert(s == connector_common::get_range_pair<2, TupleTestT>().second == 1, "");
     

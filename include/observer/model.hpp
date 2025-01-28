@@ -13,16 +13,15 @@ struct StateSpaceModel {
     static constexpr std::size_t ZNUM = ZNm;
 
     struct Config {
-        real temp1;
-        real temp2;
 
         constexpr auto param_interface() {
-            return ParamsInterface(temp1, temp2, "temp1", "temp2");
+            return ParamsInterface();
+            // return ParamsInterface(temp1, temp2, "temp1", "temp2");
         }
 
         template <std::size_t Index>
         void set(const auto& value) {
-            param_interface().template set<Index>(value);
+            // param_interface().template set<Index>(value);
         }
 
     } config;
