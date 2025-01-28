@@ -30,7 +30,7 @@ struct Observer<TD> {
 template <>
 struct Observer<KF> {
     template<typename StateSpaceModelT>
-    using Type = KalmanFilter<StateSpaceModelT::XNUM, StateSpaceModelT::UNUM, StateSpaceModelT::ZNUM>;
+    using Type = KalmanFilter<StateSpaceModelT>;
     template<typename StateSpaceModelT>
     using Config = Type<StateSpaceModelT>::Config;
 };

@@ -12,9 +12,12 @@ namespace observer {
 using connector_common::to_string;
 using connector_common::ParamsInterface;
 
-template <std::size_t XNm, std::size_t UNm, std::size_t ZNm>
+template <typename StateSpaceModelT>
 class KalmanFilter {
    public:
+    static constexpr auto XNm = StateSpaceModelT::XNUM;
+    static constexpr auto UNm = StateSpaceModelT::UNUM;
+    static constexpr auto ZNm = StateSpaceModelT::ZNUM;
     struct Config {
         // 让 KalmanFilter能拿到private
         friend class KalmanFilter;
@@ -22,7 +25,7 @@ class KalmanFilter {
         std::vector<real> q_mat;
         std::vector<real> r_mat;
         public:
-        StateSpaceModel<XNm, UNm, ZNm> model;
+        StateSpaceModelT model;
         // 方便调参
         Eigen::Matrix<real, XNm, XNm, Eigen::RowMajor> P;
         Eigen::Matrix<real, XNm, XNm, Eigen::RowMajor> Q;
@@ -49,12 +52,13 @@ class KalmanFilter {
             using ParamIntT = decltype(param_interface());
             param_interface().template set<Index>(value);
             constexpr auto COUNT = ParamIntT::template index_count<Index>();
+            // 可在此自定义回调
             if constexpr (ParamIntT::template index_count<Index>() == 1) {
                 auto index = ParamIntT::template get_ele_sub_index<Index, COUNT>();
                 LOG_DEBUG(KALMAN_FILTER_DEBUG, "model index: %ld, %ld", Index, index);
-                LOG_DEBUG(KALMAN_FILTER_DEBUG, "model: %lf, %lf", model.config.temp1, model.config.temp2);
+                // LOG_DEBUG(KALMAN_FILTER_DEBUG, "model: %lf, %lf", model.config.temp1, model.config.temp2);
             } else {
-                // 要用else 括起来，否则会编译所有的情况
+                // if constexpr 要用else 括起来，否则会编译所有的情况
                 auto& v = param_interface().template get_ele<COUNT>();
                 vector_set(v, value);
             }
@@ -68,9 +72,6 @@ class KalmanFilter {
                                         " is not equal to Q " + std::to_string(Q.rows() * Q.cols()) +
                                         " or R " + std::to_string(R.rows() * R.cols()));
             }
-            // v.resize(0);
-            // std::transform(value.begin(), value.end(), std::back_inserter(v),
-            //     [](decltype(*value.begin()) val) { return static_cast<real>(val); });
             // std::lock_guard<std::mutex> lock(mutex);
             LOG_DEBUG(KALMAN_FILTER_DEBUG, "set q and r value: %s", connector_common::to_string(value).c_str());
             LOG_DEBUG(KALMAN_FILTER_DEBUG, "be setted: %s", to_string(v).c_str());

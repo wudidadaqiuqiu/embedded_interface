@@ -149,6 +149,11 @@ struct count_elements_t<std::tuple<Ts...>> {
     static constexpr size_t value = (count_elements_t<Ts>::value + ...);  // 使用折叠表达式递归计算
 };
 
+template <>
+struct count_elements_t<std::tuple<>> {
+    static constexpr size_t value = 0;  // 使用折叠表达式递归计算
+};
+
 template <std::size_t Index, typename TupleT>
 static constexpr auto get_range_pair() -> std::pair<std::size_t, std::size_t> {
     static_assert(Index < std::tuple_size_v<TupleT>, "Index out of range");

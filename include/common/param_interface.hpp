@@ -73,6 +73,20 @@ struct ParamDeclarationGen {
 	using SpecializationInRange = InRange<Index, Count, Params>;
 };
 
+
+template <>
+struct ParamDeclarationGen<> {
+	static constexpr auto gen() {
+		return ParamDeclarationGen<>{};
+	}
+	using Params = std::tuple<>;
+	template <std::size_t Index, std::size_t Count>
+	using SpecializationPairReturn = PairReturn<Index, Count, Params>;
+
+	template <std::size_t Index, std::size_t Count>
+	using SpecializationInRange = InRange<Index, Count, Params>;
+};
+
 template <typename... Args>
 struct ParamDeclarationGen<std::tuple<Args...>>
 	: public ParamDeclarationGen<Args...> {};
@@ -212,6 +226,15 @@ struct ParamsInterface {
 			}
 		}
 	};
+};
+
+template <>
+struct ParamsInterface<> {
+	using THIS = ParamsInterface<>;
+	// std::tuple<Args&...> refs;
+	constexpr ParamsInterface() {}
+	using ParamDeclare = ParamDeclarationGen<>;
+	static constexpr std::size_t PARAMS_COUNT = 0;
 };
 
 }  // namespace connector_common

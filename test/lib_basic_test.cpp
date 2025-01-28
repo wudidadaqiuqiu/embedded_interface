@@ -12,6 +12,50 @@ using observer::Observer;
 using connector_common::count_elements_t;
 using connector_common::concat;
 
+using connector_common::ParamDeclarationGen;
+using connector_common::ParamsInterface;
+using connector_common::to_string;
+struct TestS {
+    struct Config {
+        float a;
+
+        constexpr auto param_interface() {
+            // return ParamsInterface<typename Args>
+            return ParamsInterface();
+        }
+
+        template <std::size_t Index>
+        void set(const auto& value) {
+            // param_interface().template set<Index>(value);
+        }
+    } config;
+};
+struct Test2S {
+    struct Config {
+        float a;
+        TestS b;
+        float c;
+        constexpr auto param_interface() {
+            // return ParamsInterface<typename Args>
+            return ParamsInterface(a, b, c, "a1", "b1", "c1");
+        }
+
+
+        template <std::size_t Index>
+        void set(const auto& value) {
+            param_interface().template set<Index>(value);
+        }
+    } config;
+};
+
+struct DeclareAllParameters {
+    template<std::size_t Index>
+    static void func(auto* t) {
+        auto pair_hint = t->config.param_interface().template index_param_hint<Index>(concat("_"));
+        std::cout << to_string(pair_hint.get_name()) << " "  << std::endl;
+        std::cout << to_string(typename decltype(pair_hint)::ValueT{}) << std::endl;
+    }
+};
 
 inline constexpr void test_types() {
     static_assert(BasicType::type<int>() == BasicType::Type::INT, "INT test failed");
@@ -26,7 +70,7 @@ inline constexpr void test_types() {
     static_assert(BasicType::type<float&>() == BasicType::type<const double&>(), "type mismatch");
 }
 
-using Kf = observer::KalmanFilter<1, 0, 1>;
+using Kf = observer::KalmanFilter<observer::StateSpaceModel<1, 0, 1>>;
 using connector_common::get_lower;
 using connector_common::get_upper;
 using connector_common::get_range;
@@ -95,5 +139,52 @@ int main() {
         std::is_same<get_range<2, 2, ss>::type, std::tuple<>>::value,
         "Error!"
     );
+    
 
+
+
+    
+    // typename ParamDeclarationGen<TestS>::Params;
+    using type =
+		decltype(typename TestS::Config{}.param_interface())::ParamDeclare::Params;
+    using TupleTestT = std::tuple<int, std::tuple<>, float>;
+    
+    constexpr auto s = connector_common::get_range_pair<1, TupleTestT>().first;
+    static_assert((s == connector_common::get_range_pair<1, TupleTestT>().second == 1), "");
+    static_assert(connector_common::get_range_pair<0, TupleTestT>().second == 1, "");
+    // static_assert(s == connector_common::get_range_pair<2, TupleTestT>().second == 1, "");
+    
+    Test2S test2;
+    {
+    auto pair = test2.config.param_interface().template index_pair<0>(concat("_"));
+    std::cout << to_string(pair.first) << std::endl;
+    }
+    {
+    auto pair = test2.config.param_interface().template index_pair<1>(concat("_"));
+    std::cout << to_string(pair.first) << std::endl;
+    }
+    static_assert(test2.config.param_interface().PARAMS_COUNT == 2, "");
+    {
+    auto pair = test2.config.param_interface().template index_param_hint<1>(concat("_"));
+    std::cout << to_string(pair.get_name()) << std::endl;
+    }
+    {
+    auto pair = test2.config.param_interface().template index_param_hint<1>(concat("_"));
+    std::cout << to_string(pair.get_name()) << std::endl;
+    }
+    {
+    auto pair = test2.config.param_interface().template index_param_hint<0>(concat("_"));
+    std::cout << to_string(pair.get_name()) << std::endl;
+    }
+    test2.config.set<0>(1.0);
+
+    test2.config.set<1>(1.0);
+
+    // std::make_index_sequence<2>{};
+    using connector_common::for_each_unfolded;
+    for_each_unfolded<DeclareAllParameters, decltype(
+        test2.config.param_interface())::PARAMS_COUNT>(&test2);
+    
+    // test2.config.set<2>(1.0);
+    // auto pair = test2.config.param_interface().template index_pair<2>(concat("_"));
 }

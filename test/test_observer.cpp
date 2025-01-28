@@ -17,7 +17,7 @@ using attached_node::AttachedNode;
 template <std::size_t M, ObserverType ObserverTypeT, typename... ObserverArgs>
 using ObserverNode = AttachedNode<M, Observer<ObserverTypeT>, ObserverArgs...>;
 
-KalmanFilter<1, 0, 1>::Config kfconfig;
+KalmanFilter<StateSpaceModel<1, 0, 1>>::Config kfconfig;
 
 class ObserverTestNode : public rclcpp::Node {
 public:
