@@ -85,14 +85,14 @@ concat() {
 }
 
 
-template <typename T, typename U, std::size_t... Indices>
-void for_each_unfolded(U u, std::index_sequence<Indices...>) {
-    (T::template func<Indices>(u), ...); // Fold expression
+template <typename T, typename... U, std::size_t... Indices>
+void for_each_unfolded(U... u, std::index_sequence<Indices...>) {
+    (T::template func<Indices>(u...), ...); // Fold expression
 }
 
-template<typename T, std::size_t Nm, typename U>
-void for_each_unfolded(U u) {
-    for_each_unfolded<T, U>(u, std::make_index_sequence<Nm>{});
+template<typename T, std::size_t Nm, typename... U>
+void for_each_unfolded(U... u) {
+    for_each_unfolded<T, U...>(u..., std::make_index_sequence<Nm>{});
 }
 
 template <std::size_t Index, std::size_t Max,

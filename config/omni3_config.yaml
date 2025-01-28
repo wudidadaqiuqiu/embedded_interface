@@ -1,12 +1,15 @@
 omni3:
   ros__parameters:
     can_send: false
-    lqr_0_kd: 0.0 
-    lqr_0_kp: 0.0122 #10.0 * 20.0 / 16384.0
-    lqr_0_outmax: 10.0
-    lqr_1_kd: 0.0
-    lqr_1_kp: 0.0122
-    lqr_1_outmax: 10.0
-    lqr_2_kd: 0.0
-    lqr_2_kp: 0.0122
-    lqr_2_outmax: 10.0
+    lqr_0:
+      kd: 0.0 
+      kp: 0.0122 #10.0 * 20.0 / 16384.0
+      outmax: 10.0
+    lqr_1:
+      kd: 0.0
+      kp: 0.0122
+      outmax: 10.0
+    lqr_2:
+      kd: 0.0
+      kp: 0.0122
+      outmax: 10.0

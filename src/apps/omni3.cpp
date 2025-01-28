@@ -17,8 +17,8 @@ using motor_node::MotorType;
 using controller::Controller;
 using controller::ControllerType;
 using attached_node::AttachedNode;
-template <std::size_t M, ControllerType ControllerTypeT, typename... ControllerArgs>
-using ControllerNode = AttachedNode<M, Controller<ControllerTypeT>, ControllerArgs...>;
+template <ControllerType ControllerTypeT, typename... ControllerArgs>
+using ControllerNode = AttachedNode<Controller<ControllerTypeT>, ControllerArgs...>;
 
 class Omni3Node : public rclcpp::Node {
 public:
@@ -79,9 +79,9 @@ public:
     void declare_params() {
         this->declare_parameter("can_send", false);
         can_send = this->get_parameter("can_send").as_bool();
-        for (auto& cn : cns) {
-            cn.init(*this);
-        }
+        cns[0].init(*this, concat("lqr_", "0"));
+        cns[1].init(*this, concat("lqr_", "1"));
+        cns[2].init(*this, concat("lqr_", "2"));
     }
 private:
     using WheelMotor = MotorNode<MotorType::DJI_3508>;
@@ -96,11 +96,7 @@ private:
     rclcpp::TimerBase::SharedPtr timer_;
     std::shared_ptr<rclcpp::ParameterEventHandler> param_subscriber_;
     std::shared_ptr<rclcpp::ParameterCallbackHandle> cb_handle_;
-    std::array<ControllerNode<6, controller::ControllerType::LQR>, 3> cns{
-        ControllerNode<6, controller::ControllerType::LQR>(concat("lqr_0")), 
-        ControllerNode<6, controller::ControllerType::LQR>(concat("lqr_1")), 
-        ControllerNode<6, controller::ControllerType::LQR>(concat("lqr_2"))
-    };
+    std::array<ControllerNode<controller::ControllerType::LQR>, 3> cns;
     bool can_send;
 };
 

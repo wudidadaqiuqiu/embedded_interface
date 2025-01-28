@@ -14,8 +14,8 @@ using observer::Observer;
 using observer::StateSpaceModel;
 using observer::KalmanFilter;
 using attached_node::AttachedNode;
-template <std::size_t M, ObserverType ObserverTypeT, typename... ObserverArgs>
-using ObserverNode = AttachedNode<M, Observer<ObserverTypeT>, ObserverArgs...>;
+template <ObserverType ObserverTypeT, typename... ObserverArgs>
+using ObserverNode = AttachedNode<Observer<ObserverTypeT>, ObserverArgs...>;
 
 KalmanFilter<StateSpaceModel<1, 0, 1>>::Config kfconfig;
 
@@ -23,11 +23,10 @@ class ObserverTestNode : public rclcpp::Node {
 public:
     ObserverTestNode() 
         : Node("observer_test_node"),
-        td_node(concat("td"))
-        , kf_node(kfconfig, concat("kf"))
+         kf_node(kfconfig)
         {
-        td_node.init(*this);
-        kf_node.init(*this);
+        td_node.init(*this, concat("td"));
+        kf_node.init(*this, concat("kf"));
         pub_alpha = this->create_publisher<Float32MultiArray>("/observer/motor_alpha", 10);
         pub_power = this->create_publisher<Float32>("/observer/power", 10);
         omega_sub = this->create_subscription<Float32>(
@@ -55,8 +54,8 @@ public:
     }
     
 private:
-    ObserverNode<3, ObserverType::TD> td_node;
-    ObserverNode<3, ObserverType::KF, decltype(kfconfig.model)> kf_node;
+    ObserverNode<ObserverType::TD> td_node;
+    ObserverNode<ObserverType::KF, decltype(kfconfig.model)> kf_node;
     using ObserverKf = std::remove_reference_t<decltype(kf_node.get())>;
     rclcpp::Subscription<Float32>::SharedPtr omega_sub;
     rclcpp::Subscription<Float32>::SharedPtr power_real_sub;
