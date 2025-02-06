@@ -95,14 +95,15 @@ class KalmanFilter {
     struct StateData {
         std::array<real, XNm> x;
     };
-    KalmanFilter(const Config& config_) : config(config_) {
+    KalmanFilter() {
         I.setIdentity();
+    }
+    KalmanFilter(const Config& config_) : config(config_) {
         LOG_DEBUG(KALMAN_FILTER_DEBUG, "Kalman filter initialized with config: \nP:\n%s\nQ:\n%s\nR:\n%s", 
             to_string(config.P).c_str(), to_string(config.Q).c_str(), to_string(config.R).c_str());
         LOG_DEBUG(KALMAN_FILTER_DEBUG, "Kalman filter initialized with model: \nA:\n%s\nB:\n%s\nH:\n%s",
             to_string(config.model.A).c_str(), to_string(config.model.B).c_str(), to_string(config.model.H).c_str());
         LOG_DEBUG(KALMAN_FILTER_DEBUG, "q_mat size: %ld, r_mat size: %ld", config.q_mat.size(), config.r_mat.size());
-
     }
     ~KalmanFilter() {
         LOG_DEBUG(KALMAN_FILTER_DEBUG, "Kalman filter destroyed");
@@ -111,9 +112,14 @@ class KalmanFilter {
         for (std::size_t i = 0; i < ZNm; ++i) {
             z[i] = data.z[i];
         }
+        if constexpr (requires { config.model.get_H_update_func(); }) {
+            if (config.model.get_H_update_func()) {
+                config.model.get_H_update_func()(xpre, config.model.H);
+            }
+        }
         try {
             K = config.P * config.model.H.transpose() * (config.model.H * config.P * config.model.H.transpose() + config.R).inverse();
-            x = xpre + K * (z - config.model.H * xpre);
+            x = xpre + K * (z - config.model.h(xpre));
             config.P = (I - K * config.model.H) * config.P;
         }
         catch(const std::exception& e) {
@@ -125,7 +131,12 @@ class KalmanFilter {
         for (std::size_t i = 0; i < UNm; ++i) {
             u[i] = data.u[i];
         }
-        xpre = config.model.A * x + config.model.B * u;
+        if constexpr (requires { config.model.get_A_update_func(); }) {
+            if (config.model.get_A_update_func()) {
+                config.model.get_A_update_func()(x, u, config.model.A);
+            }
+        }
+        xpre = config.model.f(x, u);
         config.P = config.model.A * config.P * config.model.A.transpose() + config.Q;
     }
     
