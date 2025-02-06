@@ -3,6 +3,7 @@
 #include "std_msgs/msg/float32_multi_array.hpp"
 
 #include "depend_on_ros12/attached_node/attached_node.hpp"
+#include "depend_on_ros12/attached_node/watch_node.hpp"
 #include "observer/observer.hpp"
 
 using std_msgs::msg::Float32;
@@ -14,6 +15,7 @@ using observer::Observer;
 using observer::StateSpaceModel;
 using observer::KalmanFilter;
 using attached_node::AttachedNode;
+using attached_node::WatchNode;
 template <ObserverType ObserverTypeT, typename... ObserverArgs>
 using ObserverNode = AttachedNode<Observer<ObserverTypeT>, ObserverArgs...>;
 
@@ -22,7 +24,8 @@ class ObserverTestNode : public rclcpp::Node {
 public:
     ObserverTestNode() 
         : Node("observer_test_node"),
-         kf_node(kfconfig)
+         kf_node(kfconfig),
+         watch_node(*this)
         {
         td_node.init(*this, concat("td"));
         kf_node.init(*this, concat("kf"));
@@ -48,16 +51,14 @@ public:
             msg_power.data = kf_node.get().get_state().x.front();
             pub_power->publish(msg_power);
         });
-        timer_ =
-            this->create_wall_timer(std::chrono::milliseconds(1), [this]() -> void {
-
-            });
+        watch_node.add_publisher(kf_node.get().get_state().x.front(), 10, "test");
     }
     
 private:
     KalmanFilter<StateSpaceModel<1, 0, 1>>::Config kfconfig;
     ObserverNode<ObserverType::TD> td_node;
     ObserverNode<ObserverType::KF, decltype(kfconfig.model)> kf_node;
+    WatchNode watch_node;
     using ObserverKf = std::remove_reference_t<decltype(kf_node.get())>;
     rclcpp::Subscription<Float32>::SharedPtr omega_sub;
     rclcpp::Subscription<Float32>::SharedPtr power_real_sub;
@@ -66,8 +67,6 @@ private:
     rclcpp::Publisher<Float32>::SharedPtr pub_power;
     Float32MultiArray msg_;
     Float32 msg_power;
-    rclcpp::TimerBase::SharedPtr timer_;
-
 };
 
 int main(int argc, char** argv) {

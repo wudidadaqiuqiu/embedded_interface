@@ -55,6 +55,11 @@ add_executable(test_inter_pubsub
 target_include_directories(test_inter_pubsub PRIVATE include)
 ament_target_dependencies(test_inter_pubsub ${connector_dependencies})
 
+add_executable(test_any_pub
+  test/test_any_pub.cpp)
+target_include_directories(test_any_pub PRIVATE include)
+ament_target_dependencies(test_any_pub ${connector_dependencies})
+
 add_executable(test_param_vector
   test/test_param_vector.cpp)
 target_include_directories(test_param_vector PRIVATE include)
@@ -95,6 +100,7 @@ install (TARGETS
   test_mpc
   test_param_dynamic_config
   test_inter_pubsub
+  test_any_pub
   test_param_vector
   lib_basic_test
   test_observer
