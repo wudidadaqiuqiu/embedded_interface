@@ -32,7 +32,6 @@ public:
         kf_node.get().config.model.A << 1;
         kf_node.get().config.model.H << 1;
         pub_alpha = this->create_publisher<Float32MultiArray>("/observer/motor_alpha", 10);
-        pub_power = this->create_publisher<Float32>("/observer/power", 10);
         omega_sub = this->create_subscription<Float32>(
             "motor_omega", 10, [this](const Float32::SharedPtr msg) {
             // pub_alpha->publish(*msg.get());
@@ -47,11 +46,8 @@ public:
             };
             kf_node.get().predict(ObserverKf::PredictData{});
             kf_node.get().update(update_data);
-            
-            msg_power.data = kf_node.get().get_state().x.front();
-            pub_power->publish(msg_power);
         });
-        watch_node.add_publisher(kf_node.get().get_state().x.front(), 10, "test");
+        watch_node.add_publisher(kf_node.get().get_state().x.front(), 1, "/observer/power");
     }
     
 private:
@@ -64,9 +60,7 @@ private:
     rclcpp::Subscription<Float32>::SharedPtr power_real_sub;
 
     rclcpp::Publisher<Float32MultiArray>::SharedPtr pub_alpha;
-    rclcpp::Publisher<Float32>::SharedPtr pub_power;
     Float32MultiArray msg_;
-    Float32 msg_power;
 };
 
 int main(int argc, char** argv) {

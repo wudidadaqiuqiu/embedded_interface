@@ -7,9 +7,8 @@
 #include "rclcpp/rclcpp.hpp"
 #include "std_msgs/msg/float32.hpp"
 #include "std_msgs/msg/float32_multi_array.hpp"
-#include <any>
 
-#define ATTACHED_NODE_DEBUG (1)
+
 namespace attached_node {
 using connector_common::BasicType;
 using connector_common::for_each_unfolded;
