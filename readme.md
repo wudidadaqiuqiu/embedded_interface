@@ -6,7 +6,7 @@ sudo ip link set can0 type can bitrate 1000000 dbitrate 1000000 loopback on fd o
 
 cansend can0 123#0102030405060708
 
-rostopic pub /test_can_frame1 connector/IdPack "id: 1"
+rostopic pub /test_can_frame1 embedded_interface/IdPack "id: 1"
 
 sudo ip link set can1 down
 sudo ip link set can1 type can bitrate 1000000
