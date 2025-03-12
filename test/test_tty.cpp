@@ -50,16 +50,16 @@ public:
             // std::cout << "length: " << length << std::endl;
             if (length > sizeof(imu_data)) return;
             memcpy(&imu_data, data, length);
-            imu_raw_data.accel_x = imu_data.accel_x;
-            imu_raw_data.accel_y = imu_data.accel_y;
-            imu_raw_data.accel_z = imu_data.accel_z;
-            imu_raw_data.gyro_x = imu_data.gyro_x;
-            imu_raw_data.gyro_y = imu_data.gyro_y;
-            imu_raw_data.gyro_z = imu_data.gyro_z;
-            imu_raw_data.temperature = imu_data.temperature;
+            imu_msg.accel_x = imu_data.accel_x;
+            imu_msg.accel_y = imu_data.accel_y;
+            imu_msg.accel_z = imu_data.accel_z;
+            imu_msg.gyro_x = imu_data.gyro_x;
+            imu_msg.gyro_y = imu_data.gyro_y;
+            imu_msg.gyro_z = imu_data.gyro_z;
+            imu_msg.temperature = imu_data.temperature;
 
             // 1000Hz
-            publisher_->publish(imu_raw_data);
+            publisher_->publish(imu_msg);
         };
         unpacker.change_map(update_func_map, check_id_func_map);
         crn.register_callback([&](const TtyFrame::MSGT& frame) -> void {
@@ -79,7 +79,7 @@ public:
 
 private:
     robot_msg__msg__ImuRaw imu_data;
-    ImuRaw imu_raw_data;
+    ImuRaw imu_msg;
     Connector<ConnectorType::TTY> connector;
     ConnectorSingleRecvNode<ConnectorType::TTY, TtyFrame> crn;
     ConnectorSendNode<ConnectorType::TTY, TtyFrame> cs;
