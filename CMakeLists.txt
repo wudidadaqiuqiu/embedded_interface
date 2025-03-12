@@ -25,6 +25,11 @@ set(connector_dependencies
   robot_msg
 )
 
+set(EMBEDDED_INTERFACE_INCLUDE_DIRS include)
+# include_directories(${EMBEDDED_INTERFACE_INCLUDE_DIRS})
+ament_export_include_directories(${EMBEDDED_INTERFACE_INCLUDE_DIRS})
+ament_export_dependencies(rclcpp robot_msg Eigen3)
+
 add_executable(test_motor
   test/test_motor_ros2.cpp)
 target_include_directories(test_motor PRIVATE include)
@@ -106,5 +111,9 @@ install (TARGETS
   test_observer
 DESTINATION lib/${PROJECT_NAME})
 
+install(
+  DIRECTORY include/
+  DESTINATION include
+)
 
 ament_package()
