@@ -22,6 +22,7 @@ using controller::Controller;
 using motor_node::MotorBasicNode;
 using robot_msg::msg::MotorRef;
 
+using con_used_msg::MotorFdb;
 using con_used_msg::PidParam;
 using con_used_msg::PidParamStruct;
 using robot_msg::msg::PidParamSet; 

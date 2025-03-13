@@ -1,16 +1,18 @@
 #include "controller/controller.hpp"
-#include "depend_on_ros12/motor_node/motor_node.hpp"
-#include "depend_on_ros12/attached_node/attached_node.hpp"
 #include "motor/motor.hpp"
 #include "connector/connector.hpp"
+#include "depend_on_ros12/motor_node/motor_node.hpp"
+#include "depend_on_ros12/attached_node/attached_node.hpp"
 #include "msg_layer/msg_layer.hpp"
 #include "std_msgs/msg/float32_multi_array.hpp"
 using connector_common::concat;
+using con_used_msg::MotorFdb;
 
 using connector::Connector;
 using connector::ConnectorType;
 using connector::ConnectorSingleRecvNode;
 using connector::ConnectorSendNode;
+using connector::CanFrame;
 
 using motor_node::MotorNode;
 using motor_node::MotorType;

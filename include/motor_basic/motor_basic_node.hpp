@@ -6,6 +6,7 @@
 
 namespace motor_node {
 using connector::ConnectorSendNode;
+using connector::CanFrame;
 using controller::Controller;
 using controller::ControllerType;
 using motor::Motor;

@@ -3,6 +3,8 @@
 #include "rclcpp/rclcpp.hpp"
 #include "common/debug/log.hpp"
 namespace motor_node {
+using con_used_msg::MotorFdb;
+using connector::CanFrame;
 using motor::Motor;
 using motor::MotorType;
 

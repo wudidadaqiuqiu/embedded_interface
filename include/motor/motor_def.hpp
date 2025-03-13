@@ -5,12 +5,14 @@
 #include "connector/msgpack.hpp"
 #include "connector/connector_node.hpp"
 
+
+
+namespace motor {
+
 using connector::CanFrame;
 using connector::ConnectorType;
 using connector::ConnectorSingleRecvNode;
 using con_used_msg::MotorFdb;
-
-namespace motor {
 
 enum MotorType {
     DJI_6020,
