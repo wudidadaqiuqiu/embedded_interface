@@ -66,6 +66,11 @@ class Motor<MotorType::DJI_6020> {
 		    callback(msg);
 		});
 	}
+
+	void unregister() {
+		rnode_.unregister();
+	}
+	
 	static void motor_6020_pack(MotorFdb& msg, const std::vector<uint8_t>& data,
 								uint32_t id, real max_current) {
 		msg.id = id;

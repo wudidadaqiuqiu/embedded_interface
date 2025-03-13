@@ -37,6 +37,10 @@ class ConnectorSingleRecvNode {
         pack_manager.register_callback(func);
     }
 
+    void unregister() {
+        pack_manager.unregister();
+    }
+
     Connector<CON_TYPE>& get_connector() { return connector; }
 
    private:

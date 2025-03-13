@@ -92,7 +92,11 @@ public:
             }
         );
     }
-
+    
+    ~MotorControlNode() {
+        LOG_INFO(1, "~MotorControlNode()");
+        motor_node_.get_motor().unregister();
+    } 
 private:
     MotorRef motor_ref_;
     Connector<ConnectorType::CAN> connector;

@@ -20,6 +20,9 @@ class MotorNode : public rclcpp::Node {
 		const bool is_log = false;
 	};
 	MotorNode(const Config& config);
+	~MotorNode() {
+		LOG_INFO(1, "~MotorNode()");
+	}
 	auto get_motor() -> auto& { return motor_; }
 	const std::string fdb_topic;
    private:

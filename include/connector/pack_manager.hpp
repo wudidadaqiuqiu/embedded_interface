@@ -19,6 +19,7 @@ class PackManager {
     std::condition_variable cv;
     CallbacksContainer<MSGT> callbacks_;
     bool is_ended = false;
+    std::atomic<bool> is_unregister = false;
 
    public:
     PackManager() {
@@ -36,7 +37,14 @@ class PackManager {
         callbacks_.register_callback(func);
     }
 
+    void unregister() {
+        is_unregister = true;
+    }
+
     void push_pack(const MSGT& pack) {
+        if (is_unregister) {
+            return;
+        }
         // std::cout << "queue push" << std::endl;
         {
             std::unique_lock<std::mutex> lock(mutex);
@@ -56,6 +64,9 @@ class PackManager {
                 // std::cout << "queue pop" << std::endl;
                 pack = packs.front();
                 packs.pop();
+            }
+            if (is_unregister) {
+                return;
             }
             callbacks_.callback(pack);
         }
