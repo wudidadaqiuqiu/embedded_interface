@@ -94,8 +94,9 @@ class Connector<ConnectorType::TTY> {
         if (is_ended) return;
         // std::cout << "con_recv" << std::endl;
         int nbytes = ::read(fd, data.data(), data.size());
-        // std::cout << "nbytes: " << nbytes << std::endl;
-        if (nbytes < 0) {
+        // LOG_INFO(1, "nbytes: %d", nbytes);
+        // 断开连接时，收到0个字节
+        if (nbytes <= 0) {
             // TODO 其他情况测试
             if (errno == EAGAIN) {
                 throw TimeoutException("conector " + file_path_ + " timeout");

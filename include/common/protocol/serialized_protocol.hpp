@@ -25,7 +25,7 @@ struct ProtocolConfig {
 
 template <typename protocol_config_t>
 concept ISProtocolConfigable = requires {
-    ISCRCConfigable<typename protocol_config_t::CRC_CONFIG>;
+    requires ISCRCConfigable<typename protocol_config_t::CRC_CONFIG>;
     // { protocol_config_t::ID } -> std::convertible_to<protocol_pack_id>;
     { protocol_config_t::TYPE } -> std::convertible_to<protocol_type_e>;
     { protocol_config_t::max_len } -> std::convertible_to<size_t>;
@@ -33,8 +33,8 @@ concept ISProtocolConfigable = requires {
 
 template <typename T>
 concept Packable = requires(T& a) {
-    has_get_structure_data_method<T>;
-    has_get_struct_data_method<T>;
+    requires has_get_structure_data_method<T>;
+    requires has_get_struct_data_method<T>;
     typename T::struct_data_t;
     { T::struct_data_t::ID } -> std::common_with<protocol_pack_id>;
 };

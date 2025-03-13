@@ -29,8 +29,8 @@ concept HasConfig = requires {
 
 template <typename T, typename... U>
 concept IsPackOfObjects = requires {
-    HasType<T, U...>;
-    HasConfig<T, U...>;
+    requires HasType<T, U...>;
+    requires HasConfig<T, U...>;
 };
 
 #endif
