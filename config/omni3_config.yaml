@@ -1,6 +1,6 @@
 omni3:
   ros__parameters:
-    can_send: false
+    can_send: true
     lqr_0:
       kd: 0.0 
       kp: 0.0122 #10.0 * 20.0 / 16384.0

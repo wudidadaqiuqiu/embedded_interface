@@ -15,6 +15,7 @@ template <>
 class Motor<MotorType::DJI_6020> {
    protected:
 	ConnectorSingleRecvNode<ConnectorType::CAN, CanFrame>& rnode_;
+	ConnectorSendNode<ConnectorType::CAN, CanFrame> snode;
 	MotorId id_;
 	MotorFdb data;
 	real last_pos_deg;
@@ -23,6 +24,8 @@ class Motor<MotorType::DJI_6020> {
 	connector_common::Framerate framerate_;
 
    public:
+	using ConnectorSendNodeT =
+		ConnectorSendNode<ConnectorType::CAN, CanFrame>;
 	virtual constexpr auto base_id() -> MotorId { return 0x204; };
 	virtual constexpr auto control_frame_low() -> MotorId { return 0x1FE; };
 	virtual constexpr auto control_frame_high() -> MotorId { return 0x2FE; };
@@ -30,13 +33,14 @@ class Motor<MotorType::DJI_6020> {
 	const auto& get_fdb() const { return data; }
 	auto get_framerate() const { return framerate_.fps; }
 	auto& get_connector() const { return rnode_.get_connector(); }
+	auto get_send_node() -> auto& {
+		return snode;
+	}
 	struct Config {
 		ConnectorSingleRecvNode<ConnectorType::CAN, CanFrame>& rnode_;
 		MotorId id_;
 	};
-	using ConnectorSendNodeT =
-		connector::ConnectorSendNode<ConnectorType::CAN, CanFrame>;
-	Motor(const Config& config): rnode_(config.rnode_), id_(config.id_) {
+	Motor(const Config& config): rnode_(config.rnode_), snode(rnode_.get_connector()), id_(config.id_) {
 		using con_used_msg::AngleRelate;
 		using connector_common::Deg;
 		auto l2 = [this](const CanFrame::MSGT& msg) {

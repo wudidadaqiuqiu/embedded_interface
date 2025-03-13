@@ -1,5 +1,4 @@
 #pragma once
-#include "connector/connector_def.hpp"
 #include <fcntl.h>
 #include <linux/can.h>
 #include <net/if.h>
@@ -12,6 +11,7 @@
 #include <cstring>
 #include <vector>
 
+#include "connector/connector_def.hpp"
 #include "common/debug/log.hpp"
 namespace connector {
 

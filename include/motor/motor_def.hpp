@@ -2,16 +2,14 @@
 #include "common/common_math.hpp"
 #include "common/data_convert.hpp"
 #include "msg_layer/msg.hpp"
-#include "connector/msgpack.hpp"
-#include "connector/connector_node.hpp"
-
-
+#include "connector/connector.hpp"
 
 namespace motor {
 
 using connector::CanFrame;
 using connector::ConnectorType;
 using connector::ConnectorSingleRecvNode;
+using connector::ConnectorSendNode;
 using con_used_msg::MotorFdb;
 
 enum MotorType {
