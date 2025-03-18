@@ -27,6 +27,13 @@ inline void connector_common::data_convert<connector_common::Deg, con_used_msg::
     t.rad.num = deg.val * UsefulNum::DEG2RAD;
 }
 
+template <>
+inline void connector_common::data_convert<connector_common::Rad, con_used_msg::AngleRelate>
+    (const connector_common::Rad& rad, con_used_msg::AngleRelate& t) {
+    t.rad.num = rad.val;
+    t.deg.num = rad.val * UsefulNum::RAD2DEG;
+}
+
 
 template <>
 inline void connector_common::data_convert
