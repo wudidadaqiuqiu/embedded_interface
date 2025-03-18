@@ -36,4 +36,14 @@ struct Controller<LQR> {
     using ConstructT =Type<_...>::Config::ConstructT;
 };
 
+template <>
+struct Controller<LQRI> {
+    template<typename... _>
+    using Type = LqriController;
+    template<typename... _>
+    using Config = Type<_...>::Config;
+    template<typename... _>
+    using ConstructT =Type<_...>::Config::ConstructT;
+};
+
 }

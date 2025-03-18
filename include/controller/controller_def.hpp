@@ -11,6 +11,7 @@ namespace controller {
 enum ControllerType {
     PID = 0,
     LQR = 1,
+    LQRI = 2,
 };
 
 template <typename FdbTypeT, typename RefTypeT, typename OutTypeT>
