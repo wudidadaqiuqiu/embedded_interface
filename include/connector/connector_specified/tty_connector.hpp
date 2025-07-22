@@ -37,6 +37,9 @@ class Connector<ConnectorType::TTY> {
         case BaudRate::BAUD_1M:
             newtio.c_cflag = B1000000 | CS8 | CLOCAL | CREAD;
             break;
+        case BaudRate::BAUD_115200:
+            newtio.c_cflag = B115200 | CS8 | CLOCAL | CREAD;
+            break;
         default:
             throw std::runtime_error("Unsupported baud rate ");
             break;

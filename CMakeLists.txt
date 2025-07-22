@@ -13,6 +13,7 @@ endif()
 # find dependencies
 find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
+find_package(geometry_msgs REQUIRED)
 find_package(robot_msg REQUIRED)
 find_package(Eigen3 REQUIRED)
 # include_directories(${EIGEN3_INCLUDE_DIR} include)
@@ -23,6 +24,7 @@ find_package(Eigen3 REQUIRED)
 set(connector_dependencies
   rclcpp
   robot_msg
+  geometry_msgs
 )
 
 set(EMBEDDED_INTERFACE_INCLUDE_DIRS include ${EIGEN3_INCLUDE_DIR})
@@ -80,6 +82,12 @@ add_executable(test_observer
 target_include_directories(test_observer PRIVATE ${EMBEDDED_INTERFACE_INCLUDE_DIRS})
 ament_target_dependencies(test_observer ${connector_dependencies})
 
+add_executable(test_c20
+  test/test_c20.cpp)
+target_include_directories(test_c20 PRIVATE ${EMBEDDED_INTERFACE_INCLUDE_DIRS} )
+ament_target_dependencies(test_c20 ${connector_dependencies})
+
+
 add_executable(omni3
   src/apps/omni3.cpp)
 target_include_directories(omni3 PRIVATE ${EMBEDDED_INTERFACE_INCLUDE_DIRS} )
@@ -109,6 +117,7 @@ install (TARGETS
   test_param_vector
   lib_basic_test
   test_observer
+  test_c20
 DESTINATION lib/${PROJECT_NAME})
 
 install(

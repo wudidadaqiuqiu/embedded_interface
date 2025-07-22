@@ -9,7 +9,7 @@ enum ConnectorType {
 
 enum BaudRate {
     BAUD_1M,
-
+    BAUD_115200
 };
 
 template <ConnectorType CON_TYPE>
