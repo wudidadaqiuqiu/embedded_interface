@@ -32,6 +32,17 @@ set(EMBEDDED_INTERFACE_INCLUDE_DIRS include ${EIGEN3_INCLUDE_DIR})
 ament_export_include_directories(${EMBEDDED_INTERFACE_INCLUDE_DIRS})
 ament_export_dependencies(rclcpp robot_msg Eigen3)
 
+add_library(emi_functional SHARED
+    src/auto_restarter.cpp
+)
+
+target_include_directories(emi_functional PUBLIC
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+  $<INSTALL_INTERFACE:include>
+)
+
+ament_export_libraries(emi_functional)
+
 add_executable(test_motor
   test/test_motor_ros2.cpp)
 target_include_directories(test_motor PRIVATE ${EMBEDDED_INTERFACE_INCLUDE_DIRS})
@@ -85,6 +96,7 @@ ament_target_dependencies(test_observer ${connector_dependencies})
 add_executable(test_c20
   test/test_c20.cpp)
 target_include_directories(test_c20 PRIVATE ${EMBEDDED_INTERFACE_INCLUDE_DIRS} )
+target_link_libraries(test_c20 emi_functional)
 ament_target_dependencies(test_c20 ${connector_dependencies})
 
 
@@ -92,6 +104,11 @@ add_executable(omni3
   src/apps/omni3.cpp)
 target_include_directories(omni3 PRIVATE ${EMBEDDED_INTERFACE_INCLUDE_DIRS} )
 ament_target_dependencies(omni3 ${connector_dependencies})
+
+add_executable(test_auto_restarter
+  test/test_auto_restarter.cpp)
+target_link_libraries(test_auto_restarter emi_functional)
+
 
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
@@ -104,6 +121,15 @@ if(BUILD_TESTING)
   set(ament_cmake_cpplint_FOUND TRUE)
   ament_lint_auto_find_test_dependencies()
 endif()
+
+install(
+  TARGETS emi_functional
+  EXPORT export_emi_functional
+  ARCHIVE DESTINATION lib
+  LIBRARY DESTINATION lib
+  RUNTIME DESTINATION bin
+)
+
 
 install (TARGETS
   omni3
@@ -118,6 +144,7 @@ install (TARGETS
   lib_basic_test
   test_observer
   test_c20
+  test_auto_restarter
 DESTINATION lib/${PROJECT_NAME})
 
 install(

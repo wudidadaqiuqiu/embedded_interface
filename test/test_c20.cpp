@@ -1,5 +1,6 @@
 #include "common/protocol/serialized_protocol.hpp"
 #include "connector/connector.hpp"
+#include "emi_functional/auto_restarter.hpp"
 #include "geometry_msgs/msg/twist.hpp"
 #include "robot_msg/msg/c20_recv.hpp"
 #include "rclcpp/rclcpp.hpp"
@@ -107,9 +108,29 @@ auto CalculateCrc16(uint8_t* ptr, uint8_t len) -> uint16_t {
 
 class TtyNode : public rclcpp::Node {
    public:
-	TtyNode() : Node("test_tty"), connector(), crn(connector), cs(connector) {
-		connector.con_open("/dev/ttyUSB0", BaudRate::BAUD_115200);
-		std::cout << "open tty" << std::endl;
+	TtyNode() : Node("test_c20"), connector(), crn(connector), cs(connector) {
+		std::string key; 
+        this->declare_parameter<std::string>("tty_key", "/dev/ttyUSB0");
+		this->get_parameter("tty_key", key);
+		LOG_INFO(1, "test_c20: tty_key: %s", key.c_str());
+
+		auto_restarter.set(
+			[&]() { return !connector.is_stoped; },
+			[&]() { 
+				connector.con_open(key, BaudRate::BAUD_115200);},
+			[&, key]() { 
+				LOG_INFO(1, "restart tty");
+				connector.con_close();
+				try {
+					connector.con_open(key, BaudRate::BAUD_115200);
+				} catch (std::exception & e) {
+					LOG_ERROR(1, "open tty error: %s", e.what());
+					return;
+				} 
+			}
+		);
+		auto_restarter.start();
+		
 		// id_pack.data 长度 设置为 sizeof(Gcu2GbcPktT)
 		publisher_ = this->create_publisher<C20Recv>("/c20_recv", 10);
 		init_gcu(gcu2gbc_pkt, 0);
@@ -214,7 +235,8 @@ class TtyNode : public rclcpp::Node {
 				// copy gcu2gbc_pkt to id_pack.data
 				std::memcpy(id_pack.data.data(), &gcu2gbc_pkt,
 							sizeof(gcu2gbc_pkt));
-				cs.send(id_pack);
+				if (!connector.is_stoped)
+					cs.send(id_pack);
 				// std::cout << "send: " << id_pack.id << std::endl;
 			});
 	}
@@ -275,6 +297,8 @@ class TtyNode : public rclcpp::Node {
 	Unpacker<
 		ProtocolConfig<CRC16Config<0xFFFF, 0x1021>, protocol_type_e::protocol0>>
 		unpacker;
+	
+	AutoRestarter auto_restarter;
 	rclcpp::Subscription<geometry_msgs::msg::Twist>::SharedPtr refsubscription;
 
 	// rclcpp::Subscription<MotorRef>::SharedPtr subscription_;

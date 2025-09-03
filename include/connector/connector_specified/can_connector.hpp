@@ -60,6 +60,9 @@ class Connector<ConnectorType::CAN> {
         close(sockfd);
     }
 
+    void con_stop() {
+        LOG_WARN(1, "CAN connector has no stop method");
+    }
     void con_send(const std::vector<uint8_t>& data, uint32_t id) {
         // 准备一个 CAN 帧发送
         struct can_frame frame;

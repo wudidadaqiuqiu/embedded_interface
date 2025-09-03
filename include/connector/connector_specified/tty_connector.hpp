@@ -24,7 +24,13 @@ class Connector<ConnectorType::TTY> {
     // uint8_t buf[64];
 
    public:
+    bool is_stoped = true;
     void con_open(std::string file_path, BaudRate baud_rate) {
+        is_ended = false;
+        LOG_INFO(1, "open tty");
+        if (fd >= 0) {
+            ::close(fd);
+        }
         fd = ::open(file_path.c_str(), O_RDWR | O_NOCTTY | O_NDELAY);
         fcntl(fd, F_SETFL, 0);
         if (fd < 0) {
@@ -57,6 +63,7 @@ class Connector<ConnectorType::TTY> {
             throw std::runtime_error("Unable to set serial port attributes: " + std::string(strerror(errno)));
         }
         LOG_INFO(1, "Open tty %s success", file_path.c_str());
+        is_stoped = false;
         // std::cout << "Open tty " << file_path << " success" << std::endl;
         cv.notify_all();
     }
@@ -67,18 +74,23 @@ class Connector<ConnectorType::TTY> {
     }
 
     void con_close() {
-        if (fd < 0) 
+        LOG_INFO(1, "close tty");
+        is_stoped = true;
+        is_ended = true;
+        if (fd < 0) {
+            cv.notify_all();
             return;
+        }
         fcntl(fd, F_SETFL, O_NONBLOCK);
         termios old;
         tcgetattr(fd, &old);
         old.c_cc[VMIN] = 0;
         tcsetattr(fd, TCSANOW, &old);
         // std::cout << "close tty" << std::endl;
-        LOG_INFO(1, "close tty");
         ::close(fd);
         fd = -1;
         cv.notify_all();
+        LOG_INFO(1, "close tty success");
     }
 
     void con_send(const std::vector<uint8_t>& data, uint32_t id) {
@@ -90,10 +102,14 @@ class Connector<ConnectorType::TTY> {
         }
     }
 
+    void con_stop() {
+        is_stoped = true;
+    }
     void con_recv(std::vector<uint8_t>& data, uint32_t& id) {
         // (void)id;
         std::unique_lock<std::mutex> lock(mutex);
-        cv.wait(lock, [this]() { return this->is_ended || this->fd >= 0;});
+        LOG_INFO_CNT(100, "con_recv wait, %d, %d, %d", is_ended, fd, is_stoped);
+        cv.wait(lock, [this]() { return this->is_ended || (this->fd >= 0 && !is_stoped);});
         if (is_ended) return;
         // std::cout << "con_recv" << std::endl;
         int nbytes = ::read(fd, data.data(), data.size());

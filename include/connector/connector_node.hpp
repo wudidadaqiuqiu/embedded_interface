@@ -29,6 +29,7 @@ class ConnectorSingleRecvNode {
         is_end = true;
         connector.con_close();
         if (thread.joinable()) {
+            LOG_INFO(1, "connector node thread join");
             thread.join();
         }
     }
@@ -60,6 +61,11 @@ class ConnectorSingleRecvNode {
                 LOG_ERROR(1, "%s", e.what());
                 continue;
             } catch (const std::exception& e) {
+                if (errno == 0){
+                    LOG_WARN(1, "connector recv interupted");
+                    connector.con_stop();
+                    continue;
+                }
                 LOG_ERROR(1, "error: %s, %s, %d", e.what(), __FILE__, __LINE__);
                 throw e;
             }
